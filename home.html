@@ -1,0 +1,9 @@
+{{define "home"}}
+<p><a href="/login">Login</a></p>
+<p>Items: {{ len .Items }}</p>
+
+{{ range $key, $value := .Items }}
+<p>{{ .Title }}</p>
+{{ end }}
+
+{{end}}
