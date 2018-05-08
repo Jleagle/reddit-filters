@@ -25,7 +25,7 @@ func main() {
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
-	client, err := getClient()
+	client, err := getSteamClient(r)
 	if err != nil {
 		fmt.Println(err)
 	}

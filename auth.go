@@ -1,29 +1,56 @@
 package main
 
 import (
-	"github.com/jzelinskie/geddit"
 	"fmt"
 	"net/http"
+	"context"
+	"math/rand"
+	"strconv"
+	"errors"
+	"encoding/json"
+	"golang.org/x/oauth2"
+	"github.com/jzelinskie/geddit"
 )
 
-var client *geddit.OAuthSession
+var redditClient *geddit.OAuthSession
+var redditContext = context.Background()
 
-func getClient() (*geddit.OAuthSession, error) {
+func init() {
 
 	var err error
 
-	if client == nil {
+	redditClient, err = geddit.NewOAuthSession(
+		"EzQZsF8LWCwuEg",
+		"9rnC59qajPrntK_dTL2RGRmsmAM",
+		"Reddit Filters (https://github.com/Jleagle/reddit-filters)",
+		"http://localhost:8087/login/callback",
+	)
+	if err != nil {
+		fmt.Println(err)
+	}
+}
 
-		client, err = geddit.NewOAuthSession(
-			"EzQZsF8LWCwuEg",
-			"9rnC59qajPrntK_dTL2RGRmsmAM",
-			"Reddit Filters (https://github.com/Jleagle/reddit-filters)",
-			"http://localhost:8087/login/callback",
-		)
+func getSteamClient(r *http.Request) (client geddit.OAuthSession, err error) {
+
+	client = *redditClient
+
+	// Get the token
+	bytes, err := getSessionData(r, sessionToken)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// If we have a token, set it on the client
+	if len(bytes) > 0 {
+
+		t := new(oauth2.Token)
+
+		err = json.Unmarshal([]byte(bytes), t)
 		if err != nil {
 			fmt.Println(err)
 		}
 
+		client.Client = redditClient.OAuthConfig.Client(redditContext, t)
 	}
 
 	return client, err
@@ -31,13 +58,22 @@ func getClient() (*geddit.OAuthSession, error) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	client, err := getClient()
+	client, err := getSteamClient(r)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// todo, generate & save state
-	url := client.AuthCodeURL("state", []string{"identity", "read", "history", "subscribe"})
+	// Generate state
+	s := strconv.Itoa(int(rand.Int31()))
+
+	// Save state
+	err = setSessionData(w, r, sessionState, s)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Redirect
+	url := client.AuthCodeURL(s, []string{"identity", "read", "history", "subscribe"})
 
 	http.Redirect(w, r, url, 302)
 	return
@@ -45,18 +81,31 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
-	// todo, check state
-
-	client, err := getClient()
+	// Check the state
+	state, err := getSessionData(r, sessionState)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	// Create and set token using given auth code.
-	err = client.CodeAuth(r.URL.Query().Get("code"))
+	if state != r.URL.Query().Get("state") {
+		fmt.Println(errors.New("invalid state"))
+	}
+
+	// Get token
+	client, err := getSteamClient(r)
 	if err != nil {
 		fmt.Println(err)
 	}
+
+	t, err := client.OAuthConfig.Exchange(redditContext, r.URL.Query().Get("code"))
+
+	// Save token
+	j, err := json.Marshal(t)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	setSessionData(w, r, sessionToken, string(j))
 
 	http.Redirect(w, r, "/", 302)
 	return
