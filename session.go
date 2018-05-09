@@ -16,7 +16,7 @@ var store = sessions.NewCookieStore(
 
 func getSession(r *http.Request) (*sessions.Session, error) {
 
-	session, err := store.Get(r, "steam-authority-session")
+	session, err := store.Get(r, "reddit-filters-session")
 	session.Options = &sessions.Options{
 		MaxAge: 60 * 60,
 		Path:   "/",
