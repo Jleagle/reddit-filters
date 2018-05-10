@@ -3,60 +3,17 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"context"
 	"math/rand"
 	"strconv"
 	"errors"
 	"encoding/json"
-	"golang.org/x/oauth2"
-	"github.com/jzelinskie/geddit"
 )
 
-var redditClient *geddit.OAuthSession
-var redditContext = context.Background()
-
-func init() {
-
-	var err error
-
-	redditClient, err = geddit.NewOAuthSession(
-		"EzQZsF8LWCwuEg",
-		"9rnC59qajPrntK_dTL2RGRmsmAM",
-		"Reddit Filters (https://github.com/Jleagle/reddit-filters)",
-		"http://localhost:8087/login/callback",
-	)
-	if err != nil {
-		fmt.Println(err)
-	}
-}
-
-func getSteamClient(r *http.Request) (client geddit.OAuthSession, err error) {
-
-	client = *redditClient
-
-	// Get the token
-	bytes, err := getSessionData(r, sessionToken)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	// If we have a token, set it on the client
-	if len(bytes) > 0 {
-
-		t := new(oauth2.Token)
-
-		err = json.Unmarshal([]byte(bytes), t)
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		client.Client = redditClient.OAuthConfig.Client(redditContext, t)
-	}
-
-	return client, err
-}
+var scopes = []string{ScopeIdentity, ScopeRead, ScopeHistory, ScopeSubscribe}
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+
+	client := GetClient(scopes)
 
 	client, err := getSteamClient(r)
 	if err != nil {
