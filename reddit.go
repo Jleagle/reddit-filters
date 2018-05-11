@@ -4,57 +4,19 @@ import (
 	"strconv"
 	"math/rand"
 	"golang.org/x/oauth2"
-	"os"
+	"net/http"
+	"context"
+	"time"
 )
 
-var reddit Reddit
+const (
+	userAgent      = "Reddit Filters (https://github.com/Jleagle/reddit-filters)"
+	authURL        = "https://www.reddit.com/api/v1/authorize"
+	authCompactURL = "https://www.reddit.com/api/v1/authorize.compact"
+	tokenURL       = "https://www.reddit.com/api/v1/access_token"
+)
 
-func GetClient(scopes []string) (reddit Reddit) {
-
-	var authURL string
-	if reddit.CompactLogin {
-		authURL = "https://www.reddit.com/api/v1/authorize.compact"
-	} else {
-		authURL = "https://www.reddit.com/api/v1/authorize"
-	}
-
-	config := oauth2.Config{
-		ClientID:     os.Getenv("REDDIT_CLIENT"),
-		ClientSecret: os.Getenv("REDDIT_SECRET"),
-		Endpoint: oauth2.Endpoint{
-			AuthURL:  authURL,
-			TokenURL: "https://www.reddit.com/api/v1/access_token",
-		},
-		RedirectURL: "http://localhost:8087/login/callback",
-		Scopes:      scopes,
-	}
-
-	reddit = Reddit{
-		Agent:        "Reddit Filters (https://github.com/Jleagle/reddit-filters)",
-		OauthConfig:  &config,
-		CompactLogin: false,
-	}
-
-	return reddit
-}
-
-type Reddit struct {
-	Agent        string
-	OauthConfig  *oauth2.Config
-	CompactLogin bool
-}
-
-var ParamResponseType = oauth2.SetAuthURLParam("response_type", "code")
-var ParamDuration = oauth2.SetAuthURLParam("duration", "permanent")
-
-func (r Reddit) AuthPath() (path string, state string) {
-
-	state = strconv.Itoa(int(rand.Int31()))
-
-	return reddit.OauthConfig.AuthCodeURL(state, ParamResponseType, ParamDuration), state
-}
-
-var (
+const (
 	ScopeAccount          = "account"          // Update preferences and related account information. Will not have access to your email or password.
 	ScopeCreddits         = "creddits"         // Spend my reddit gold creddits on giving gold to other users.
 	ScopeEdit             = "edit"             // Edit and delete my comments and submissions.
@@ -84,3 +46,84 @@ var (
 	ScopeWikiedit         = "wikiedit"         // Edit wiki pages on my behalf.
 	ScopeWikiread         = "wikiread"         // Read wiki pages through my account.
 )
+
+type transport struct {
+	http.RoundTripper
+	useragent string
+}
+
+func (t *transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
+
+	req.Header.Set("User-Agent", t.useragent)
+	req.Header.Set("Host", "www.reddit.com")
+
+	return t.RoundTripper.RoundTrip(req)
+}
+
+type Reddit struct {
+	Agent        string
+	CompactLogin bool
+	OauthConfig  oauth2.Config
+	ctx          context.Context
+	httpClient   *http.Client
+}
+
+
+
+func GetClient(client string, secret string, redirect string) (reddit Reddit) {
+
+	config := oauth2.Config{
+		ClientID:     client,
+		ClientSecret: secret,
+		Endpoint: oauth2.Endpoint{
+			AuthURL:  authURL,
+			TokenURL: tokenURL,
+		},
+		RedirectURL: redirect,
+	}
+
+	reddit = Reddit{
+		Agent:       userAgent,
+		OauthConfig: config,
+		ctx:         context.Background(),
+	}
+
+	// Use the custom HTTP client when requesting a token.
+	httpClient := &http.Client{
+		Timeout: 2 * time.Second,
+	}
+
+	reddit.ctx = context.WithValue(reddit.ctx, oauth2.HTTPClient, httpClient)
+
+	return reddit
+}
+
+func (r Reddit) Login(scopes []string, compact bool) (url string, state string) {
+
+	r.OauthConfig.Scopes = scopes
+
+	if compact {
+		r.OauthConfig.Endpoint.AuthURL = authCompactURL
+	}
+
+	state = strconv.Itoa(int(rand.Int31()))
+
+	url = r.OauthConfig.AuthCodeURL(
+		state,
+		oauth2.SetAuthURLParam("response_type", "code"),
+		oauth2.SetAuthURLParam("duration", "permanent"),
+	)
+
+	return url, state
+}
+
+func (r Reddit) GetToken(code string) (url string, state string, err error) {
+
+	tok, err := r.OauthConfig.Exchange(r.ctx, code)
+	if err != nil {
+		return
+	}
+
+	r.httpClient = r.OauthConfig.Client(r.ctx, tok)
+	return
+}
