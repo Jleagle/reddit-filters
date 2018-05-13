@@ -40,9 +40,9 @@
     {{ range $key, $value := .Items }}
 
         <li class="media mb-1">
-            <img class="mr-3" src="{{ .ThumbnailURL }}" alt="{{ .Title }}" width="140px;">
+            <img class="mr-3" src="{{ .Data.Thumbnail }}" alt="{{ .Data.Title }}" width="140px;">
             <div class="media-body">
-                <h5 class="mt-0 mb-1">{{ .Title }}</h5>
+                <h5 class="mt-0 mb-1">{{ .Data.Title }}</h5>
                 xxx
             </div>
         </li>

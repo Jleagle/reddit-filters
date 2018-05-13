@@ -2,8 +2,9 @@ package main
 
 import (
 	"net/http"
-	"github.com/gorilla/sessions"
 	"os"
+
+	"github.com/gorilla/sessions"
 )
 
 const sessionToken = "token"
