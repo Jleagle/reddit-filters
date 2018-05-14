@@ -24,15 +24,6 @@
 #   go-tests = true
 #   unused-packages = true
 
-
-[[constraint]]
-  name = "github.com/go-chi/chi"
-  version = "3.3.2"
-
-[[constraint]]
-  branch = "master"
-  name = "github.com/jzelinskie/geddit"
-
 [prune]
   go-tests = true
   unused-packages = true

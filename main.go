@@ -8,6 +8,7 @@ import (
 	"html/template"
 	"net/http"
 	"os"
+	"strings"
 
 	"github.com/go-chi/chi"
 	"golang.org/x/oauth2"
@@ -15,15 +16,11 @@ import (
 
 var scopes = []AuthScope{ScopeIdentity, ScopeRead, ScopeHistory, ScopeSubscribe}
 
-const (
-	userAgent = "Reddit Filters"
-)
-
 var client = GetClient(
 	os.Getenv("REDDIT_CLIENT"),
 	os.Getenv("REDDIT_SECRET"),
 	"http://localhost:8087/login/callback",
-	userAgent,
+	"Reddit Filters",
 )
 
 func main() {
@@ -31,8 +28,12 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Get("/", HomeHandler)
+	r.Get("/listing", ListingHandler)
 	r.Get("/login", LoginHandler)
 	r.Get("/login/callback", LoginCallbackHandler)
+
+	// File server
+	fileServer(r)
 
 	err := http.ListenAndServe(":8087", r)
 	if err != nil {
@@ -80,13 +81,20 @@ func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		setSessionData(w, r, sessionToken, string(j))
 	}
 
-	fmt.Println(tok)
-
 	http.Redirect(w, r, "/", 302)
 	return
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
+
+	t := homeTemplate{}
+	returnTemplate(w, r, "home", t)
+}
+
+type homeTemplate struct {
+}
+
+func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
 	c := client
 
@@ -109,14 +117,64 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	t := homeTemplate{}
-	t.Items = posts.Data.Children
+	var ret []listingItemTemplate
+	var lastID string
 
-	returnTemplate(w, r, "home", t)
+	for _, v := range posts.Data.Children {
+
+		lastID = v.Data.ID
+
+		if v.Data.Thumbnail == "self" {
+			v.Data.Thumbnail = "/assets/logo.png"
+		}
+
+		// Filters
+
+		ret = append(ret, listingItemTemplate{
+			ID:    v.Data.ID,
+			Title: v.Data.Title,
+			Icon:  v.Data.Thumbnail,
+		})
+	}
+
+	//// Save the token to session again, incase it has been refreshed
+	//tok, err = c.GetToken(r)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//
+	//j, err := json.Marshal(tok)
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+	//
+	//err = setSessionData(w, r, sessionToken, string(j))
+	//if err != nil {
+	//	fmt.Println(err)
+	//}
+
+	// Encode
+	b, err := json.Marshal(listingTemplate{
+		LastID: lastID,
+		Items:  ret,
+	})
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
 }
 
-type homeTemplate struct {
-	Items []ListingPost
+type listingTemplate struct {
+	Items  []listingItemTemplate `json:"items"`
+	LastID string                `json:"last_id"`
+}
+
+type listingItemTemplate struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Icon  string `json:"icon"`
 }
 
 func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageData interface{}) (err error) {
@@ -142,4 +200,25 @@ func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageDat
 	}
 
 	return nil
+}
+
+func fileServer(r chi.Router) {
+
+	path := "/assets"
+
+	if strings.ContainsAny(path, "{}*") {
+		fmt.Println("FileServer does not permit URL parameters")
+	}
+
+	fs := http.StripPrefix(path, http.FileServer(http.Dir("./assets")))
+
+	if path != "/" && path[len(path)-1] != '/' {
+		r.Get(path, http.RedirectHandler(path+"/", 301).ServeHTTP)
+		path += "/"
+	}
+	path += "*"
+
+	r.Get(path, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fs.ServeHTTP(w, r)
+	}))
 }

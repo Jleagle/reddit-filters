@@ -20,12 +20,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/google/go-querystring"
-  packages = ["query"]
-  revision = "53e6ce116135b80d037921a7fdd5138cf32d7a8a"
-
-[[projects]]
   name = "github.com/gorilla/context"
   packages = ["."]
   revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
@@ -45,18 +39,12 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/jzelinskie/geddit"
-  packages = ["."]
-  revision = "f75101e39ffed7ec9596d6929a8d85bb86223339"
-
-[[projects]]
-  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp"
   ]
-  revision = "640f4622ab692b87c2f3a94265e6f579fe38263d"
+  revision = "2491c5de3490fced2f6cff376127c667efeed857"
 
 [[projects]]
   branch = "master"
@@ -84,6 +72,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "080fed0ec745a5a714c621ab115ce1defa05a8738be7ea528960b8a3b4256fb4"
+  inputs-digest = "cfb38779217c00bf101d5efe27994b2f206861497551a58f83fba025d888062c"
   solver-name = "gps-cdcl"
   solver-version = 1
