@@ -8,11 +8,11 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"net/url"
 	"strconv"
 	"time"
 
 	"github.com/beefsack/go-rate"
+	"github.com/google/go-querystring/query"
 	"golang.org/x/oauth2"
 )
 
@@ -189,12 +189,17 @@ func (r *Reddit) SetToken(tok *oauth2.Token) {
 	r.httpClient = r.oauthConfig.Client(r.ctx, tok)
 }
 
-func (r Reddit) GetPosts(reddit string, age ListingAge, sort ListingSort) (posts *ListingResponse, err error) {
+func (r Reddit) GetPosts(reddit string, sort ListingSort, age ListingAge, options ListingOptions) (posts *ListingResponse, err error) {
 
-	q := url.Values{}
+	q, err := query.Values(options)
+	if err != nil {
+		return posts, err
+	}
+
 	q.Set("sort", string(sort))
+	q.Set("t", string(age))
 
-	u := fmt.Sprintf(apiURL+"r/%s/%s?%s", reddit, age, q.Encode())
+	u := fmt.Sprintf(apiURL+"r/%s?%s", reddit, q.Encode())
 
 	posts = new(ListingResponse)
 	err = r.fetch(u, posts)
@@ -203,6 +208,16 @@ func (r Reddit) GetPosts(reddit string, age ListingAge, sort ListingSort) (posts
 	}
 
 	return posts, err
+}
+
+type ListingOptions struct {
+	After  string `url:"after,omitempty"`
+	Before string `url:"before,omitempty"`
+	Count  int    `url:"count,omitempty"`
+	Limit  int    `url:"limit,omitempty"`
+	Show   string `url:"show,omitempty"`
+	Detail string `url:"detail,omitempty"`
+	Time   string `url:"t,omitempty"`
 }
 
 type ListingResponse struct {

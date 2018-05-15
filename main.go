@@ -61,6 +61,8 @@ func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
+	// todo, handle errors, no code etc
+
 	if state != r.URL.Query().Get("state") {
 		fmt.Println(errors.New("invalid state"))
 	}
@@ -112,7 +114,10 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
 	c.SetToken(tok)
 
-	posts, err := c.GetPosts("steam", SortTop, AgeMonth)
+	options := ListingOptions{}
+	options.After = r.URL.Query().Get("last")
+
+	posts, err := c.GetPosts("all", SortTop, AgeMonth, options)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -122,7 +127,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
 	for _, v := range posts.Data.Children {
 
-		lastID = v.Data.ID
+		lastID = v.Kind + "_" + v.Data.ID
 
 		if v.Data.Thumbnail == "self" {
 			v.Data.Thumbnail = "/assets/logo.png"
@@ -131,7 +136,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 		// Filters
 
 		ret = append(ret, listingItemTemplate{
-			ID:    v.Data.ID,
+			ID:    v.Kind + "_" + v.Data.ID,
 			Title: v.Data.Title,
 			Icon:  v.Data.Thumbnail,
 		})

@@ -66,42 +66,58 @@
 <script src="/assets/jquery.json2html.js"></script>
 
 <script>
+    var last_id = '';
+    var loading = false;
+
     $('form input[type=checkbox]').change(function () {
         $('form').submit();
     });
 
     $(window).scroll(function () {
         if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-            alert("near bottom!");
+            getMore();
         }
     });
 
-    getMore(0, "");
+    getMore();
 
-    function getMore(lastCount, lastID) {
+    function getMore() {
 
-        $.ajax({
-            method: "GET",
-            url: "/listing",
-            data: {
-                last: lastID,
-            },
-            success: function (data, status, xhr) {
+        if (loading === false) {
 
-                var transform = {
-                    '<>': 'li', 'class': 'media mb-1', 'html': [
-                        {'<>': 'img', 'class': 'mr-3', 'src': '${Icon}', 'alt': '${Title}', 'width': '140px;'},
-                        {
-                            '<>': 'div', 'class': 'media-body', 'html': [
-                                {'<>': 'h5', 'class': 'mt-0 mb-1', 'html': '${Title}'}
-                            ]
-                        },
-                    ]
-                };
+            console.log('getting more');
 
-                $('ul#results').json2html(data.items, transform);
-            }
-        });
+            loading = true;
+
+            $.ajax({
+                method: "GET",
+                url: "/listing",
+                data: {
+                    last: last_id,
+                },
+                success: function (data, status, xhr) {
+
+                    last_id = data.last_id;
+
+                    console.log('last id: ' + data.last_id);
+
+                    var transform = {
+                        '<>': 'li', 'class': 'media mb-1', 'html': [
+                            {'<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'alt': '${title}', 'width': '140px;'},
+                            {
+                                '<>': 'div', 'class': 'media-body', 'html': [
+                                    {'<>': 'h5', 'class': 'mt-0 mb-1', 'html': '${title}'}
+                                ]
+                            },
+                        ]
+                    };
+
+                    $('ul#results').json2html(data.items, transform);
+
+                    loading = false;
+                }
+            });
+        }
     }
 </script>
 
