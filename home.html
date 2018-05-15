@@ -11,6 +11,12 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
 
     <title>Reddit Filters</title>
+
+    <style>
+        html {
+            overflow-y: scroll;
+        }
+    </style>
 </head>
 <body>
 
@@ -40,16 +46,123 @@
     <div class="card mb-4">
         <div class="card-header">Filters</div>
         <div class="card-body">
+
             <form action="/" method="get">
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="images" name="images" value="1">
-                    <label class="custom-control-label" for="images">Images Only</label>
-                </div>
-                <div class="custom-control custom-checkbox">
-                    <input type="checkbox" class="custom-control-input" id="nsfw" name="nsfw" value="1">
-                    <label class="custom-control-label" for="nsfw">NSFW Only</label>
+                <div class="row">
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="images">Images</label>
+                            <select class="form-control" id="images" name="images">
+                                <option value="">All</option>
+                                <option value="t">Only images</option>
+                                <option value="f">No Images</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="video">Video</label>
+                            <select class="form-control" id="video" name="video">
+                                <option value="">All</option>
+                                <option value="t">3</option>
+                                <option value="f">2</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="self">Self Post</label>
+                            <select class="form-control" id="self" name="self">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="spoiler">Spoiler</label>
+                            <select class="form-control" id="spoiler" name="spoiler">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="saved">Saved</label>
+                            <select class="form-control" id="saved" name="saved">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="clicked">Clicked</label>
+                            <select class="form-control" id="clicked" name="clicked">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="hidden">Hidden</label>
+                            <select class="form-control" id="hidden" name="hidden">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="visited">Visited</label>
+                            <select class="form-control" id="visited" name="visited">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="original">Original</label>
+                            <select class="form-control" id="original" name="original">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-3">
+                        <div class="form-group">
+                            <label for="nsfw">NSFW</label>
+                            <select class="form-control" id="nsfw" name="nsfw">
+                                <option value="">All</option>
+                                <option value="t">2</option>
+                                <option value="f">3</option>
+                            </select>
+                        </div>
+                    </div>
+
                 </div>
             </form>
+
         </div>
     </div>
 
@@ -69,8 +182,20 @@
     var last_id = '';
     var loading = false;
 
-    $('form input[type=checkbox]').change(function () {
-        $('form').submit();
+    var $form = $('form');
+
+    $('form select').change(function () {
+
+        $.each($form.serializeArray(), function (index, value) {
+            if (value.value === '') {
+                console.log('select[name=' + value.name + ']');
+                $('select[name=' + value.name + ']').attr('disabled', 'disabled');
+            }
+        });
+
+        // console.log($form.serializeArray());
+
+        $form.submit();
     });
 
     $(window).scroll(function () {
@@ -103,16 +228,32 @@
 
                     var transform = {
                         '<>': 'li', 'class': 'media mb-1', 'html': [
-                            {'<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'alt': '${title}', 'width': '140px;'},
+                            {
+                                '<>': 'a', 'href': '${link}', 'html': [
+                                    {'<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'alt': '${title}', 'width': '140px;'},
+                                ]
+                            },
                             {
                                 '<>': 'div', 'class': 'media-body', 'html': [
-                                    {'<>': 'h5', 'class': 'mt-0 mb-1', 'html': '${title}'}
+                                    {'<>': 'h5', 'class': 'mt-0 mb-1', 'html': '${title}'},
+                                    {
+                                        '<>': 'p', 'class': 'mb-0', 'html': [
+                                            {'<>': 'a', 'href': '/r/${reddit}', 'html': '/r/${reddit}'}
+                                        ]
+                                    },
+                                    {
+                                        '<>': 'p', 'class': 'mb-0', 'html': [
+                                            {'<>': 'a', 'href': '${comments}', 'html': 'Comments'}
+                                        ]
+                                    }
                                 ]
                             },
                         ]
                     };
 
                     $('ul#results').json2html(data.items, transform);
+
+                    $('ul#results').append($('<hr>'));
 
                     loading = false;
                 }

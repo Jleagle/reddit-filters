@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/go-chi/chi"
 	"golang.org/x/oauth2"
@@ -16,12 +17,19 @@ import (
 
 var scopes = []AuthScope{ScopeIdentity, ScopeRead, ScopeHistory, ScopeSubscribe}
 
-var client = GetClient(
-	os.Getenv("REDDIT_CLIENT"),
-	os.Getenv("REDDIT_SECRET"),
-	"http://localhost:8087/login/callback",
-	"Reddit Filters",
-)
+var client Reddit
+
+func init() {
+
+	client = GetClient(
+		os.Getenv("REDDIT_CLIENT"),
+		os.Getenv("REDDIT_SECRET"),
+		"http://localhost:8087/login/callback",
+		"Reddit Filters",
+	)
+	client.Throttle(time.Second)
+
+}
 
 func main() {
 
@@ -55,13 +63,17 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
 func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
 
+	// Handle errors
+	errStr := r.URL.Query().Get("error")
+	if errStr != "" {
+		fmt.Println(errStr)
+	}
+
 	// Check the state
 	state, err := getSessionData(r, sessionState)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	// todo, handle errors, no code etc
 
 	if state != r.URL.Query().Get("state") {
 		fmt.Println(errors.New("invalid state"))
@@ -129,16 +141,19 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
 		lastID = v.Kind + "_" + v.Data.ID
 
-		if v.Data.Thumbnail == "self" {
+		if !strings.HasPrefix(v.Data.Thumbnail, "http") {
 			v.Data.Thumbnail = "/assets/logo.png"
 		}
 
 		// Filters
 
 		ret = append(ret, listingItemTemplate{
-			ID:    v.Kind + "_" + v.Data.ID,
-			Title: v.Data.Title,
-			Icon:  v.Data.Thumbnail,
+			ID:        v.Kind + "_" + v.Data.ID,
+			Title:     v.Data.Title,
+			Icon:      v.Data.Thumbnail,
+			Subreddit: v.Data.Subreddit,
+			Link:      v.Data.URL,
+			Comments:  "https://www.reddit.com" + v.Data.Permalink,
 		})
 	}
 
@@ -177,9 +192,12 @@ type listingTemplate struct {
 }
 
 type listingItemTemplate struct {
-	ID    string `json:"id"`
-	Title string `json:"title"`
-	Icon  string `json:"icon"`
+	ID        string `json:"id"`
+	Title     string `json:"title"`
+	Icon      string `json:"icon"`
+	Subreddit string `json:"reddit"`
+	Link      string `json:"link"`
+	Comments  string `json:"comments"`
 }
 
 func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageData interface{}) (err error) {
