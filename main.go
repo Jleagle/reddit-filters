@@ -7,9 +7,9 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
-	"time"
 
 	"github.com/go-chi/chi"
 	"golang.org/x/oauth2"
@@ -17,19 +17,12 @@ import (
 
 var scopes = []AuthScope{ScopeIdentity, ScopeRead, ScopeHistory, ScopeSubscribe}
 
-var client Reddit
-
-func init() {
-
-	client = GetClient(
-		os.Getenv("REDDIT_CLIENT"),
-		os.Getenv("REDDIT_SECRET"),
-		"http://localhost:8087/login/callback",
-		"Reddit Filters",
-	)
-	client.Throttle(time.Second)
-
-}
+var client = GetClient(
+	os.Getenv("REDDIT_CLIENT"),
+	os.Getenv("REDDIT_SECRET"),
+	"http://localhost:8087/login/callback",
+	"Reddit Filters",
+)
 
 func main() {
 
@@ -102,19 +95,36 @@ func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	t := homeTemplate{}
+	t.Query = r.URL.Query()
+
 	returnTemplate(w, r, "home", t)
 }
 
 type homeTemplate struct {
+	Query url.Values
 }
 
 func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
+	w.Header().Set("Content-Type", "application/json")
+
+	q := r.URL.Query()
 	c := client
 
 	tokString, err := getSessionData(r, sessionToken)
 	if err != nil {
 		fmt.Println(err)
+	}
+
+	if tokString == "" {
+
+		j, err := json.Marshal(struct{ Error string `json:"error"` }{"not logged in"})
+		if err != nil {
+			fmt.Println(err)
+		}
+
+		w.Write(j)
+		return
 	}
 
 	tok := new(oauth2.Token)
@@ -127,7 +137,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 	c.SetToken(tok)
 
 	options := ListingOptions{}
-	options.After = r.URL.Query().Get("last")
+	options.After = q.Get("last")
 
 	posts, err := c.GetPosts("all", SortTop, AgeMonth, options)
 	if err != nil {
@@ -145,15 +155,26 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 			v.Data.Thumbnail = "/assets/logo.png"
 		}
 
-		// Filters
+		if q.Get("images") == "t" && !v.Data.IsImage() {
+			continue
+		} else if q.Get("images") == "f" && v.Data.IsImage() {
+			continue
+		}
+
+		if q.Get("nsfw") == "t" && !v.Data.Over18 {
+			continue
+		} else if q.Get("nsfw") == "f" && v.Data.Over18 {
+			continue
+		}
 
 		ret = append(ret, listingItemTemplate{
-			ID:        v.Kind + "_" + v.Data.ID,
-			Title:     v.Data.Title,
-			Icon:      v.Data.Thumbnail,
-			Subreddit: v.Data.Subreddit,
-			Link:      v.Data.URL,
-			Comments:  "https://www.reddit.com" + v.Data.Permalink,
+			ID:            v.Kind + "_" + v.Data.ID,
+			Title:         v.Data.Title,
+			Icon:          v.Data.Thumbnail,
+			Subreddit:     v.Data.Subreddit,
+			Link:          v.Data.URL,
+			CommentsLink:  "https://www.reddit.com" + v.Data.Permalink,
+			CommentsCount: v.Data.NumComments,
 		})
 	}
 
@@ -182,7 +203,6 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
 
@@ -192,12 +212,13 @@ type listingTemplate struct {
 }
 
 type listingItemTemplate struct {
-	ID        string `json:"id"`
-	Title     string `json:"title"`
-	Icon      string `json:"icon"`
-	Subreddit string `json:"reddit"`
-	Link      string `json:"link"`
-	Comments  string `json:"comments"`
+	ID            string `json:"id"`
+	Title         string `json:"title"`
+	Icon          string `json:"icon"`
+	Subreddit     string `json:"reddit"`
+	Link          string `json:"link"`
+	CommentsLink  string `json:"comments_link"`
+	CommentsCount int    `json:"comments_count"`
 }
 
 func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageData interface{}) (err error) {
@@ -205,7 +226,7 @@ func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageDat
 	w.Header().Set("Content-Type", "text/html")
 
 	// Load templates needed
-	t, err := template.New("t").ParseFiles(page + ".html")
+	t, err := template.New("t").Funcs(templateFuncs()).ParseFiles(page + ".html")
 	if err != nil {
 		fmt.Println(err)
 		return err
@@ -223,6 +244,15 @@ func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageDat
 	}
 
 	return nil
+}
+
+func templateFuncs() template.FuncMap {
+	return template.FuncMap{
+		"has":    func(q url.Values, field string) bool { return q.Get(field) != "" },
+		"ist":    func(q url.Values, field string) bool { return q.Get(field) == "t" },
+		"isf":    func(q url.Values, field string) bool { return q.Get(field) == "f" },
+		"option": func(q url.Values, field string, value string) bool { return q.Get(field) == value },
+	}
 }
 
 func fileServer(r chi.Router) {

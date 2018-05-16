@@ -9,14 +9,9 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <link rel="stylesheet" href="/assets/styles.css">
 
     <title>Reddit Filters</title>
-
-    <style>
-        html {
-            overflow-y: scroll;
-        }
-    </style>
 </head>
 <body>
 
@@ -33,10 +28,6 @@
                     <a class="nav-link" href="/login">Login</a>
                 </li>
             </ul>
-            <form class="form-inline my-2 my-lg-0">
-                <input class="form-control mr-sm-2" type="search" placeholder="Search">
-                <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-            </form>
         </div>
     </div>
 </nav>
@@ -47,115 +38,115 @@
         <div class="card-header">Filters</div>
         <div class="card-body">
 
-            <form action="/" method="get">
+            <form action="/" method="get" id="filters">
                 <div class="row">
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="images">Images</label>
+                            <label for="images" class="{{ if has .Query "images" }}font-weight-bold{{end}}">Images</label>
                             <select class="form-control" id="images" name="images">
                                 <option value="">All</option>
-                                <option value="t">Only images</option>
-                                <option value="f">No Images</option>
+                                <option value="t" {{if option .Query "images" "t"}}selected{{end}}>Images Only</option>
+                                <option value="f" {{if option .Query "images" "f"}}selected{{end}}>No Images</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="video">Video</label>
-                            <select class="form-control" id="video" name="video">
+                            <label for="videos" class="{{ if has .Query "videos" }}font-weight-bold{{end}}">Videos</label>
+                            <select class="form-control" id="videos" name="videos">
                                 <option value="">All</option>
-                                <option value="t">3</option>
-                                <option value="f">2</option>
+                                <option value="t" {{if option .Query "videos" "t"}}selected{{end}}>Videos Only</option>
+                                <option value="f" {{if option .Query "videos" "f"}}selected{{end}}>No Videos</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="self">Self Post</label>
-                            <select class="form-control" id="self" name="self">
+                            <label for="selfs" class="{{ if has .Query "selfs" }}font-weight-bold{{end}}">Self Posts</label>
+                            <select class="form-control" id="selfs" name="selfs">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "selfs" "t"}}selected{{end}}>Self Posts Only</option>
+                                <option value="f" {{if option .Query "selfs" "f"}}selected{{end}}>No Self Posts</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="spoiler">Spoiler</label>
-                            <select class="form-control" id="spoiler" name="spoiler">
+                            <label for="spoilers" class="{{ if has .Query "spoilers" }}font-weight-bold{{end}}">Spoilers</label>
+                            <select class="form-control" id="spoilers" name="spoilers">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "spoilers" "t"}}selected{{end}}>Spoilers Only</option>
+                                <option value="f" {{if option .Query "spoilers" "f"}}selected{{end}}>No Spoilers</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="saved">Saved</label>
+                            <label for="saved" class="{{ if has .Query "saved" }}font-weight-bold{{end}}">Saved</label>
                             <select class="form-control" id="saved" name="saved">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "saved" "t"}}selected{{end}}>Saved Posts Only</option>
+                                <option value="f" {{if option .Query "saved" "f"}}selected{{end}}>No Saved Posts</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="clicked">Clicked</label>
+                            <label for="clicked" class="{{ if has .Query "clicked" }}font-weight-bold{{end}}">Clicked</label>
                             <select class="form-control" id="clicked" name="clicked">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "clicked" "t"}}selected{{end}}>Clicked Posts Only</option>
+                                <option value="f" {{if option .Query "clicked" "f"}}selected{{end}}>No Clicked Posts</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="hidden">Hidden</label>
+                            <label for="hidden" class="{{ if has .Query "hidden" }}font-weight-bold{{end}}">Hidden</label>
                             <select class="form-control" id="hidden" name="hidden">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "hidden" "t"}}selected{{end}}>Hidden Posts Only</option>
+                                <option value="f" {{if option .Query "hidden" "f"}}selected{{end}}>No Hidden Posts</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="visited">Visited</label>
+                            <label for="visited" class="{{ if has .Query "visited" }}font-weight-bold{{end}}">Visited</label>
                             <select class="form-control" id="visited" name="visited">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "visited" "t"}}selected{{end}}>Visited Posts Only</option>
+                                <option value="f" {{if option .Query "visited" "f"}}selected{{end}}>No Visited Posts</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="original">Original</label>
+                            <label for="original" class="{{ if has .Query "original" }}font-weight-bold{{end}}">Original</label>
                             <select class="form-control" id="original" name="original">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "original" "t"}}selected{{end}}>Original Posts Only</option>
+                                <option value="f" {{if option .Query "original" "f"}}selected{{end}}>No Original Posts</option>
                             </select>
                         </div>
                     </div>
 
                     <div class="col-3">
                         <div class="form-group">
-                            <label for="nsfw">NSFW</label>
+                            <label for="nsfw" class="{{ if has .Query "nsfw" }}font-weight-bold{{end}}">NSFW</label>
                             <select class="form-control" id="nsfw" name="nsfw">
                                 <option value="">All</option>
-                                <option value="t">2</option>
-                                <option value="f">3</option>
+                                <option value="t" {{if option .Query "nsfw" "t"}}selected{{end}}>NSFW Posts Only</option>
+                                <option value="f" {{if option .Query "nsfw" "f"}}selected{{end}}>No NSFW Posts</option>
                             </select>
                         </div>
                     </div>
@@ -166,101 +157,24 @@
         </div>
     </div>
 
+    <div class="spinner">
+        <div class="rect1"></div>
+        <div class="rect2"></div>
+        <div class="rect3"></div>
+        <div class="rect4"></div>
+        <div class="rect5"></div>
+    </div>
+
     <ul class="list-unstyled" id="results"></ul>
 
 </div>
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
+{{/*<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>*/}}
+{{/*<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>*/}}
 <script src="/assets/json2html.js"></script>
 <script src="/assets/jquery.json2html.js"></script>
-
-<script>
-    var last_id = '';
-    var loading = false;
-
-    var $form = $('form');
-
-    $('form select').change(function () {
-
-        $.each($form.serializeArray(), function (index, value) {
-            if (value.value === '') {
-                console.log('select[name=' + value.name + ']');
-                $('select[name=' + value.name + ']').attr('disabled', 'disabled');
-            }
-        });
-
-        // console.log($form.serializeArray());
-
-        $form.submit();
-    });
-
-    $(window).scroll(function () {
-        if ($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
-            getMore();
-        }
-    });
-
-    getMore();
-
-    function getMore() {
-
-        if (loading === false) {
-
-            console.log('getting more');
-
-            loading = true;
-
-            $.ajax({
-                method: "GET",
-                url: "/listing",
-                data: {
-                    last: last_id,
-                },
-                success: function (data, status, xhr) {
-
-                    last_id = data.last_id;
-
-                    console.log('last id: ' + data.last_id);
-
-                    var transform = {
-                        '<>': 'li', 'class': 'media mb-1', 'html': [
-                            {
-                                '<>': 'a', 'href': '${link}', 'html': [
-                                    {'<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'alt': '${title}', 'width': '140px;'},
-                                ]
-                            },
-                            {
-                                '<>': 'div', 'class': 'media-body', 'html': [
-                                    {'<>': 'h5', 'class': 'mt-0 mb-1', 'html': '${title}'},
-                                    {
-                                        '<>': 'p', 'class': 'mb-0', 'html': [
-                                            {'<>': 'a', 'href': '/r/${reddit}', 'html': '/r/${reddit}'}
-                                        ]
-                                    },
-                                    {
-                                        '<>': 'p', 'class': 'mb-0', 'html': [
-                                            {'<>': 'a', 'href': '${comments}', 'html': 'Comments'}
-                                        ]
-                                    }
-                                ]
-                            },
-                        ]
-                    };
-
-                    $('ul#results').json2html(data.items, transform);
-
-                    $('ul#results').append($('<hr>'));
-
-                    loading = false;
-                }
-            });
-        }
-    }
-</script>
+<script src="/assets/scripts.js"></script>
 
 </body>
 </html>
