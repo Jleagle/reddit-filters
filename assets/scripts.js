@@ -32,13 +32,15 @@ function getMore() {
 
         $.ajax({
             method: "GET",
-            url: "/listing",
+            url: "/listing" + window.location.search,
             data: {
                 last: last_id,
             },
             success: function (data, status, xhr) {
 
                 if ("error" in data) {
+
+                    $('.spinner').remove();
 
                     $('ul#results').html($('<li>Please login</li>'));
 
