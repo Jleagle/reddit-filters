@@ -26,8 +26,6 @@ function getMore() {
 
     if (loading === false) {
 
-        console.log('getting more');
-
         loading = true;
 
         $.ajax({
@@ -35,6 +33,7 @@ function getMore() {
             url: "/listing" + window.location.search,
             data: {
                 last: last_id,
+                reddit: reddit,
             },
             success: function (data, status, xhr) {
 

@@ -29,9 +29,12 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Get("/", HomeHandler)
+	r.Get("/r/{id}", RedditHandler)
 	r.Get("/listing", ListingHandler)
+
 	r.Get("/login", LoginHandler)
 	r.Get("/login/callback", LoginCallbackHandler)
+	r.Get("/logout", LogoutHandler)
 
 	// File server
 	fileServer(r)
@@ -92,6 +95,16 @@ func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
+func LogoutHandler(w http.ResponseWriter, r *http.Request) {
+
+	err := setSessionData(w, r, sessionToken, "")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	http.Redirect(w, r, "/", 302)
+}
+
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	t := homeTemplate{}
@@ -101,7 +114,17 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type homeTemplate struct {
-	Query url.Values
+	Query  url.Values
+	Reddit string
+}
+
+func RedditHandler(w http.ResponseWriter, r *http.Request) {
+
+	t := homeTemplate{}
+	t.Query = r.URL.Query()
+	t.Reddit = chi.URLParam(r, "id")
+
+	returnTemplate(w, r, "home", t)
 }
 
 func ListingHandler(w http.ResponseWriter, r *http.Request) {
