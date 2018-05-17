@@ -1,9 +1,17 @@
 var last_id = '';
 var loading = false;
+var stop = false;
+var page = 1;
 
 var $form = $('form#filters');
+var $results = $('ul#results');
+var $loadButton = $('#load-more');
 
-$('form select').change(function () {
+$loadButton.click(function () {
+    getMore();
+});
+
+$form.find('select').change(function () {
 
     $.each($form.serializeArray(), function (index, value) {
         if (value.value === '') {
@@ -15,7 +23,7 @@ $('form select').change(function () {
 });
 
 $(window).scroll(function () {
-    if ($(window).scrollTop() + $(window).height() > $(document).height() - 3000) {
+    if ($(window).scrollTop() + $(window).height() > $(document).height() - 5000) {
         getMore();
     }
 });
@@ -24,9 +32,9 @@ getMore();
 
 function getMore() {
 
-    if (loading === false) {
+    if (loading === false && stop !== true) {
 
-        loading = true;
+        start_loading();
 
         $.ajax({
             method: "GET",
@@ -39,18 +47,18 @@ function getMore() {
 
                 if ("error" in data) {
 
-                    $('.spinner').remove();
+                    $results.html($('<li>' + data.error + '</li>'));
+                    stop = true;
+                    $loadButton.remove();
 
-                    $('ul#results').html($('<li>Please login</li>'));
-
-                } else {
+                } else if (data.items !== null) {
 
                     last_id = data.last_id;
 
                     var transform = {
                         '<>': 'li', 'class': 'media mb-1', 'data-id': '${id}', 'html': [
                             {
-                                '<>': 'a', 'href': '${link}', 'html': [
+                                '<>': 'a', 'target': '_blank', 'href': '${link}', 'html': [
                                     {'<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'alt': '${title}', 'width': '140px;'},
                                 ]
                             },
@@ -64,7 +72,7 @@ function getMore() {
                                     },
                                     {
                                         '<>': 'p', 'class': 'mb-0', 'html': [
-                                            {'<>': 'a', 'href': '${comments_link}', 'html': '${comments_count} Comments'}
+                                            {'<>': 'a', 'target': '_blank', 'href': '${comments_link}', 'html': '${comments_count} Comments'}
                                         ]
                                     }
                                 ]
@@ -72,16 +80,44 @@ function getMore() {
                         ]
                     };
 
-                    $('.spinner').remove();
+                    $results.json2html(data.items, transform);
+                    $results.append($('<hr>'));
 
-                    $('ul#results').json2html(data.items, transform);
+                } else {
 
-                    $('ul#results').append($('<hr>'));
-
-                    loading = false;
+                    // No error and no items
+                    last_id = data.last_id;
+                    $results.append($('<hr>'));
 
                 }
+
+                sleep_ms(1000);
+
+                stop_loading();
             }
         });
     }
+}
+
+function start_loading() {
+
+    console.log('Loading...');
+    loading = true;
+    $loadButton.attr('disabled', 'disabled');
+    $loadButton.find('i').show();
+
+}
+
+function stop_loading() {
+
+    console.log('Complete.');
+    loading = false;
+    $loadButton.removeAttr('disabled');
+    $loadButton.find('i').hide();
+
+}
+
+function sleep_ms(millisecs) {
+    var initiation = new Date().getTime();
+    while ((new Date().getTime() - initiation) < millisecs) ;
 }

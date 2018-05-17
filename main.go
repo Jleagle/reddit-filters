@@ -29,8 +29,10 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Get("/", HomeHandler)
-	r.Get("/r/{id}", RedditHandler)
+	r.Get("/r/{id}", HomeHandler)
 	r.Get("/listing", ListingHandler)
+
+	r.Get("/info", InfoHandler)
 
 	r.Get("/login", LoginHandler)
 	r.Get("/login/callback", LoginCallbackHandler)
@@ -45,16 +47,30 @@ func main() {
 	}
 }
 
+type globalTemplate struct {
+	IsLoggedIn bool
+}
+
+func (g *globalTemplate) Fill(r *http.Request) {
+
+	token, err := getSessionData(r, sessionToken)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	g.IsLoggedIn = token != ""
+}
+
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	url, state := client.Login(scopes, false, "")
+	u, state := client.Login(scopes, false, "")
 
 	err := setSessionData(w, r, sessionState, state)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	http.Redirect(w, r, url, 302)
+	http.Redirect(w, r, u, 302)
 }
 
 func LoginCallbackHandler(w http.ResponseWriter, r *http.Request) {
@@ -103,28 +119,35 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/", 302)
+	return
 }
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
-	t := homeTemplate{}
+	t := listingTemplate{}
+	t.Fill(r)
 	t.Query = r.URL.Query()
+	t.Reddit = chi.URLParam(r, "id")
 
-	returnTemplate(w, r, "home", t)
+	returnTemplate(w, r, "listing", t)
 }
 
-type homeTemplate struct {
+type listingTemplate struct {
+	globalTemplate
 	Query  url.Values
 	Reddit string
 }
 
-func RedditHandler(w http.ResponseWriter, r *http.Request) {
+func InfoHandler(w http.ResponseWriter, r *http.Request) {
 
-	t := homeTemplate{}
-	t.Query = r.URL.Query()
-	t.Reddit = chi.URLParam(r, "id")
+	t := infoTemplate{}
+	t.Fill(r)
 
-	returnTemplate(w, r, "home", t)
+	returnTemplate(w, r, "info", t)
+}
+
+type infoTemplate struct {
+	globalTemplate
 }
 
 func ListingHandler(w http.ResponseWriter, r *http.Request) {
@@ -184,9 +207,57 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		if q.Get("nsfw") == "t" && !v.Data.Over18 {
+		if q.Get("videos") == "t" && !v.Data.IsVideo {
 			continue
-		} else if q.Get("nsfw") == "f" && v.Data.Over18 {
+		} else if q.Get("videos") == "f" && v.Data.IsVideo {
+			continue
+		}
+
+		if q.Get("selfs") == "t" && !v.Data.IsSelf {
+			continue
+		} else if q.Get("selfs") == "f" && v.Data.IsSelf {
+			continue
+		}
+
+		if q.Get("spoilers") == "t" && !v.Data.IsSpoiler {
+			continue
+		} else if q.Get("spoilers") == "f" && v.Data.IsSpoiler {
+			continue
+		}
+
+		if q.Get("saved") == "t" && !v.Data.IsSaved {
+			continue
+		} else if q.Get("saved") == "f" && v.Data.IsSaved {
+			continue
+		}
+
+		if q.Get("clicked") == "t" && !v.Data.IsClicked {
+			continue
+		} else if q.Get("clicked") == "f" && v.Data.IsClicked {
+			continue
+		}
+
+		if q.Get("hidden") == "t" && !v.Data.IsHidden {
+			continue
+		} else if q.Get("hidden") == "f" && v.Data.IsHidden {
+			continue
+		}
+
+		if q.Get("visited") == "t" && !v.Data.IsVisited {
+			continue
+		} else if q.Get("visited") == "f" && v.Data.IsVisited {
+			continue
+		}
+
+		if q.Get("original") == "t" && !v.Data.IsOriginalContent {
+			continue
+		} else if q.Get("original") == "f" && v.Data.IsOriginalContent {
+			continue
+		}
+
+		if q.Get("nsfw") == "t" && !v.Data.IsOver18 {
+			continue
+		} else if q.Get("nsfw") == "f" && v.Data.IsOver18 {
 			continue
 		}
 
@@ -218,7 +289,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 	//}
 
 	// Encode
-	b, err := json.Marshal(listingTemplate{
+	b, err := json.Marshal(ajaxTemplate{
 		LastID: lastID,
 		Items:  ret,
 	})
@@ -229,7 +300,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-type listingTemplate struct {
+type ajaxTemplate struct {
 	Items  []listingItemTemplate `json:"items"`
 	LastID string                `json:"last_id"`
 }
@@ -249,7 +320,7 @@ func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageDat
 	w.Header().Set("Content-Type", "text/html")
 
 	// Load templates needed
-	t, err := template.New("t").Funcs(templateFuncs()).ParseFiles(page + ".html")
+	t, err := template.New("t").Funcs(templateFuncs()).ParseFiles("templates/_header.html", "templates/_footer.html", "templates/"+page+".html")
 	if err != nil {
 		fmt.Println(err)
 		return err

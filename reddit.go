@@ -242,25 +242,25 @@ type ListingPostData struct {
 	Subreddit      string        `json:"subreddit"`
 	Selftext       string        `json:"selftext"`
 	UserReports    []interface{} `json:"user_reports"`
-	Saved          bool          `json:"saved"`
+	IsSaved        bool          `json:"saved"`
 	ModReasonTitle interface{}   `json:"mod_reason_title"`
 	Gilded         int           `json:"gilded"`
-	Clicked        bool          `json:"clicked"`
+	IsClicked      bool          `json:"clicked"`
 	Title          string        `json:"title"`
 	LinkFlairRichtext []struct {
 		E string `json:"e"`
 		T string `json:"t"`
 	} `json:"link_flair_richtext"`
-	SubredditNamePrefixed      string      `json:"subreddit_name_prefixed"`
-	Hidden                     bool        `json:"hidden"`
-	Pwls                       int         `json:"pwls"`
-	LinkFlairCSSClass          string      `json:"link_flair_css_class"`
-	Downs                      int         `json:"downs"`
-	ThumbnailHeight            int         `json:"thumbnail_height"`
-	ParentWhitelistStatus      string      `json:"parent_whitelist_status"`
-	HideScore                  bool        `json:"hide_score"`
-	Name                       string      `json:"name"`
-	Quarantine                 bool        `json:"quarantine"`
+	SubredditNamePrefixed string `json:"subreddit_name_prefixed"`
+	IsHidden              bool   `json:"hidden"`
+	Pwls                  int    `json:"pwls"`
+	LinkFlairCSSClass     string `json:"link_flair_css_class"`
+	Downs                 int    `json:"downs"`
+	ThumbnailHeight       int    `json:"thumbnail_height"`
+	ParentWhitelistStatus string `json:"parent_whitelist_status"`
+	HideScore             bool   `json:"hide_score"`
+	Name                  string `json:"name"`
+	Quarantine            bool   `json:"quarantine"`
 	LinkFlairTextColor         string      `json:"link_flair_text_color"`
 	AuthorFlairBackgroundColor interface{} `json:"author_flair_background_color"`
 	SubredditType              string      `json:"subreddit_type"`
@@ -294,16 +294,16 @@ type ListingPostData struct {
 	BannedBy            interface{}   `json:"banned_by"`
 	AuthorFlairType     string        `json:"author_flair_type"`
 	ContestMode         bool          `json:"contest_mode"`
-	SelftextHTML        interface{}   `json:"selftext_html"`
-	Likes               interface{}   `json:"likes"`
-	SuggestedSort       interface{}   `json:"suggested_sort"`
-	BannedAtUtc         interface{}   `json:"banned_at_utc"`
-	ViewCount           interface{}   `json:"view_count"`
-	Archived            bool          `json:"archived"`
-	NoFollow            bool          `json:"no_follow"`
-	IsCrosspostable     bool          `json:"is_crosspostable"`
-	Pinned              bool          `json:"pinned"`
-	Over18              bool          `json:"over_18"`
+	SelftextHTML    interface{} `json:"selftext_html"`
+	Likes           interface{} `json:"likes"`
+	SuggestedSort   interface{} `json:"suggested_sort"`
+	BannedAtUtc     interface{} `json:"banned_at_utc"`
+	ViewCount       interface{} `json:"view_count"`
+	Archived        bool        `json:"archived"`
+	NoFollow        bool        `json:"no_follow"`
+	IsCrosspostable bool        `json:"is_crosspostable"`
+	Pinned          bool        `json:"pinned"`
+	IsOver18        bool        `json:"over_18"`
 	Preview struct {
 		Images []struct {
 			Source struct {
@@ -322,21 +322,21 @@ type ListingPostData struct {
 		} `json:"images"`
 		Enabled bool `json:"enabled"`
 	} `json:"preview"`
-	CanGild              bool          `json:"can_gild"`
-	Spoiler              bool          `json:"spoiler"`
-	Locked               bool          `json:"locked"`
-	AuthorFlairText      string        `json:"author_flair_text"`
-	RteMode              string        `json:"rte_mode"`
-	Visited              bool          `json:"visited"`
-	NumReports           interface{}   `json:"num_reports"`
-	Distinguished        interface{}   `json:"distinguished"`
-	SubredditID          string        `json:"subreddit_id"`
-	ModReasonBy          interface{}   `json:"mod_reason_by"`
-	RemovalReason        interface{}   `json:"removal_reason"`
-	ID                   string        `json:"id"`
-	ReportReasons        interface{}   `json:"report_reasons"`
-	Author               string        `json:"author"`
-	NumCrossposts        int           `json:"num_crossposts"`
+	CanGild         bool        `json:"can_gild"`
+	IsSpoiler       bool        `json:"spoiler"`
+	Locked          bool        `json:"locked"`
+	AuthorFlairText string      `json:"author_flair_text"`
+	RteMode         string      `json:"rte_mode"`
+	IsVisited       bool        `json:"visited"`
+	NumReports      interface{} `json:"num_reports"`
+	Distinguished   interface{} `json:"distinguished"`
+	SubredditID     string      `json:"subreddit_id"`
+	ModReasonBy     interface{} `json:"mod_reason_by"`
+	RemovalReason   interface{} `json:"removal_reason"`
+	ID              string      `json:"id"`
+	ReportReasons   interface{} `json:"report_reasons"`
+	Author          string      `json:"author"`
+	NumCrossposts   int         `json:"num_crossposts"`
 	NumComments          int           `json:"num_comments"`
 	SendReplies          bool          `json:"send_replies"`
 	ModReports           []interface{} `json:"mod_reports"`

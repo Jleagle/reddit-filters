@@ -1,72 +1,6 @@
-{{define "home"}}
+{{define "listing"}}
 
-<!doctype html>
-<html lang="en">
-<head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
-    <link rel="stylesheet" href="/assets/styles.css">
-
-    <title>Reddit Filters</title>
-</head>
-<body>
-
-<nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-    <div class="container">
-        <a class="navbar-brand" href="/">Reddit Filters</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav mr-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/r/popular">Popular</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/r/all">All</a>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Sort By</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/?sort=hot">Hot</a>
-                        <a class="dropdown-item" href="/?sort=new">New</a>
-                        <a class="dropdown-item" href="/?sort=rising">Rising</a>
-                        <a class="dropdown-item" href="/?sort=top">Top</a>
-                        <a class="dropdown-item" href="/?sort=controversial">Controversial</a>
-                    </div>
-                </li>
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">In Time</a>
-                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/?time=default">Default</a>
-                        <a class="dropdown-item" href="/?time=hour">Hour</a>
-                        <a class="dropdown-item" href="/?time=day">Day</a>
-                        <a class="dropdown-item" href="/?time=week">Week</a>
-                        <a class="dropdown-item" href="/?time=month">Month</a>
-                        <a class="dropdown-item" href="/?time=year">Year</a>
-                        <a class="dropdown-item" href="/?time=all">AllTime</a>
-                    </div>
-                </li>
-            </ul>
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/login">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</nav>
+{{ template "_header" . }}
 
 <div class="container">
 
@@ -193,31 +127,24 @@
         </div>
     </div>
 
-    <div class="spinner">
-        <div class="rect1"></div>
-        <div class="rect2"></div>
-        <div class="rect3"></div>
-        <div class="rect4"></div>
-        <div class="rect5"></div>
-    </div>
+</div>
+
+<div class="container">
 
     <ul class="list-unstyled" id="results"></ul>
 
-</div>
+    <button type="button" class="btn btn-success mb-4 mt-4x" id="load-more">Load More <i class="fas fa-spinner fa-spin"></i></button>
 
-<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-{{/*<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js" integrity="sha384-cs/chFZiN24E4KMATLdqdvsezGxaGsi4hLGOzlXwp5UZB1LY//20VyM2taTB4QvJ" crossorigin="anonymous"></script>*/}}
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
-<script src="/assets/json2html.js"></script>
-<script src="/assets/jquery.json2html.js"></script>
+</div>
 
 <script>
     var reddit = '{{.Reddit}}';
 </script>
 
+<script src="/assets/json2html.js"></script>
+<script src="/assets/jquery.json2html.js"></script>
 <script src="/assets/scripts.js"></script>
 
-</body>
-</html>
+{{ template "_footer" . }}
 
 {{end}}
