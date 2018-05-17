@@ -3,6 +3,11 @@ html {
     overflow-y: scroll;
 }
 
+div.page-number {
+    text-align: center;
+    /*border-radius: 3px;*/
+}
+
 .spinner {
     height: 40px;
     font-size: 10px;

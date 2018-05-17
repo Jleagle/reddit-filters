@@ -81,15 +81,17 @@ function getMore() {
                     };
 
                     $results.json2html(data.items, transform);
-                    $results.append($('<hr>'));
+                    $results.append($('<div class="card page-number mb-1">Page ' + page + '</div>'));
 
                 } else {
 
                     // No error and no items
                     last_id = data.last_id;
-                    $results.append($('<hr>'));
+                    $results.append($('<div class="card page-number mb-1">Page ' + page + '</div>'));
 
                 }
+
+                page++;
 
                 sleep_ms(1000);
 

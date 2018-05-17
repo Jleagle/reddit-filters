@@ -18,10 +18,8 @@ import (
 )
 
 const (
-	defaultUserAgent = "Reddit Filters (https://github.com/Jleagle/reddit-filters)"
-)
+	defaultUserAgent = "github.com/Jleagle/reddit-go"
 
-const (
 	authURL        = "https://www.reddit.com/api/v1/authorize"
 	authCompactURL = "https://www.reddit.com/api/v1/authorize.compact"
 	tokenURL       = "https://www.reddit.com/api/v1/access_token"
@@ -82,6 +80,94 @@ const (
 	AgeMonth              = "month"
 	AgeYear               = "year"
 	AgeAllTime            = "all"
+)
+
+type ListingLocation string
+
+const (
+	GLOBAL ListingLocation = "GLOBAL"
+	US                     = "US"
+	AR                     = "AR"
+	AU                     = "AU"
+	BG                     = "BG"
+	CA                     = "CA"
+	CL                     = "CL"
+	CO                     = "CO"
+	HR                     = "HR"
+	CZ                     = "CZ"
+	FI                     = "FI"
+	GR                     = "GR"
+	HU                     = "HU"
+	IS                     = "IS"
+	IN                     = "IN"
+	IE                     = "IE"
+	JP                     = "JP"
+	MY                     = "MY"
+	MX                     = "MX"
+	NZ                     = "NZ"
+	PH                     = "PH"
+	PL                     = "PL"
+	PT                     = "PT"
+	PR                     = "PR"
+	RO                     = "RO"
+	RS                     = "RS"
+	SG                     = "SG"
+	SE                     = "SE"
+	TW                     = "TW"
+	TH                     = "TH"
+	TR                     = "TR"
+	GB                     = "GB"
+	US_WA                  = "US_WA"
+	US_DE                  = "US_DE"
+	US_DC                  = "US_DC"
+	US_WI                  = "US_WI"
+	US_WV                  = "US_WV"
+	US_HI                  = "US_HI"
+	US_FL                  = "US_FL"
+	US_WY                  = "US_WY"
+	US_NH                  = "US_NH"
+	US_NJ                  = "US_NJ"
+	US_NM                  = "US_NM"
+	US_TX                  = "US_TX"
+	US_LA                  = "US_LA"
+	US_NC                  = "US_NC"
+	US_ND                  = "US_ND"
+	US_NE                  = "US_NE"
+	US_TN                  = "US_TN"
+	US_NY                  = "US_NY"
+	US_PA                  = "US_PA"
+	US_CA                  = "US_CA"
+	US_NV                  = "US_NV"
+	US_VA                  = "US_VA"
+	US_CO                  = "US_CO"
+	US_AK                  = "US_AK"
+	US_AL                  = "US_AL"
+	US_AR                  = "US_AR"
+	US_VT                  = "US_VT"
+	US_IL                  = "US_IL"
+	US_GA                  = "US_GA"
+	US_IN                  = "US_IN"
+	US_IA                  = "US_IA"
+	US_OK                  = "US_OK"
+	US_AZ                  = "US_AZ"
+	US_ID                  = "US_ID"
+	US_CT                  = "US_CT"
+	US_ME                  = "US_ME"
+	US_MD                  = "US_MD"
+	US_MA                  = "US_MA"
+	US_OH                  = "US_OH"
+	US_UT                  = "US_UT"
+	US_MO                  = "US_MO"
+	US_MN                  = "US_MN"
+	US_MI                  = "US_MI"
+	US_RI                  = "US_RI"
+	US_KS                  = "US_KS"
+	US_MT                  = "US_MT"
+	US_MS                  = "US_MS"
+	US_SC                  = "US_SC"
+	US_KY                  = "US_KY"
+	US_OR                  = "US_OR"
+	US_SD                  = "US_SD"
 )
 
 var (
@@ -190,6 +276,7 @@ func (r *Reddit) SetToken(tok *oauth2.Token) {
 	r.httpClient = r.oauthConfig.Client(r.ctx, tok)
 }
 
+// todo, Move the 2 params into options
 func (r Reddit) GetPosts(reddit string, sort ListingSort, age ListingAge, options ListingOptions) (posts *ListingResponse, err error) {
 
 	q, err := query.Values(options)
@@ -200,7 +287,14 @@ func (r Reddit) GetPosts(reddit string, sort ListingSort, age ListingAge, option
 	q.Set("sort", string(sort))
 	q.Set("t", string(age))
 
-	u := fmt.Sprintf(apiURL+"r/%s?%s", reddit, q.Encode())
+	var u string
+	if reddit == "" {
+		u = fmt.Sprintf(apiURL+"?%s", q.Encode())
+	} else {
+		u = fmt.Sprintf(apiURL+"r/%s?%s", reddit, q.Encode())
+	}
+
+	fmt.Println(u)
 
 	posts = new(ListingResponse)
 	err = r.fetch(u, posts)
@@ -251,16 +345,16 @@ type ListingPostData struct {
 		E string `json:"e"`
 		T string `json:"t"`
 	} `json:"link_flair_richtext"`
-	SubredditNamePrefixed string `json:"subreddit_name_prefixed"`
-	IsHidden              bool   `json:"hidden"`
-	Pwls                  int    `json:"pwls"`
-	LinkFlairCSSClass     string `json:"link_flair_css_class"`
-	Downs                 int    `json:"downs"`
-	ThumbnailHeight       int    `json:"thumbnail_height"`
-	ParentWhitelistStatus string `json:"parent_whitelist_status"`
-	HideScore             bool   `json:"hide_score"`
-	Name                  string `json:"name"`
-	Quarantine            bool   `json:"quarantine"`
+	SubredditNamePrefixed      string      `json:"subreddit_name_prefixed"`
+	IsHidden                   bool        `json:"hidden"`
+	Pwls                       int         `json:"pwls"`
+	LinkFlairCSSClass          string      `json:"link_flair_css_class"`
+	Downs                      int         `json:"downs"`
+	ThumbnailHeight            int         `json:"thumbnail_height"`
+	ParentWhitelistStatus      string      `json:"parent_whitelist_status"`
+	HideScore                  bool        `json:"hide_score"`
+	Name                       string      `json:"name"`
+	Quarantine                 bool        `json:"quarantine"`
 	LinkFlairTextColor         string      `json:"link_flair_text_color"`
 	AuthorFlairBackgroundColor interface{} `json:"author_flair_background_color"`
 	SubredditType              string      `json:"subreddit_type"`
@@ -294,16 +388,16 @@ type ListingPostData struct {
 	BannedBy            interface{}   `json:"banned_by"`
 	AuthorFlairType     string        `json:"author_flair_type"`
 	ContestMode         bool          `json:"contest_mode"`
-	SelftextHTML    interface{} `json:"selftext_html"`
-	Likes           interface{} `json:"likes"`
-	SuggestedSort   interface{} `json:"suggested_sort"`
-	BannedAtUtc     interface{} `json:"banned_at_utc"`
-	ViewCount       interface{} `json:"view_count"`
-	Archived        bool        `json:"archived"`
-	NoFollow        bool        `json:"no_follow"`
-	IsCrosspostable bool        `json:"is_crosspostable"`
-	Pinned          bool        `json:"pinned"`
-	IsOver18        bool        `json:"over_18"`
+	SelftextHTML        interface{}   `json:"selftext_html"`
+	Likes               interface{}   `json:"likes"`
+	SuggestedSort       interface{}   `json:"suggested_sort"`
+	BannedAtUtc         interface{}   `json:"banned_at_utc"`
+	ViewCount           interface{}   `json:"view_count"`
+	Archived            bool          `json:"archived"`
+	NoFollow            bool          `json:"no_follow"`
+	IsCrosspostable     bool          `json:"is_crosspostable"`
+	Pinned              bool          `json:"pinned"`
+	IsOver18            bool          `json:"over_18"`
 	Preview struct {
 		Images []struct {
 			Source struct {
@@ -322,21 +416,21 @@ type ListingPostData struct {
 		} `json:"images"`
 		Enabled bool `json:"enabled"`
 	} `json:"preview"`
-	CanGild         bool        `json:"can_gild"`
-	IsSpoiler       bool        `json:"spoiler"`
-	Locked          bool        `json:"locked"`
-	AuthorFlairText string      `json:"author_flair_text"`
-	RteMode         string      `json:"rte_mode"`
-	IsVisited       bool        `json:"visited"`
-	NumReports      interface{} `json:"num_reports"`
-	Distinguished   interface{} `json:"distinguished"`
-	SubredditID     string      `json:"subreddit_id"`
-	ModReasonBy     interface{} `json:"mod_reason_by"`
-	RemovalReason   interface{} `json:"removal_reason"`
-	ID              string      `json:"id"`
-	ReportReasons   interface{} `json:"report_reasons"`
-	Author          string      `json:"author"`
-	NumCrossposts   int         `json:"num_crossposts"`
+	CanGild              bool          `json:"can_gild"`
+	IsSpoiler            bool          `json:"spoiler"`
+	Locked               bool          `json:"locked"`
+	AuthorFlairText      string        `json:"author_flair_text"`
+	RteMode              string        `json:"rte_mode"`
+	IsVisited            bool          `json:"visited"`
+	NumReports           interface{}   `json:"num_reports"`
+	Distinguished        interface{}   `json:"distinguished"`
+	SubredditID          string        `json:"subreddit_id"`
+	ModReasonBy          interface{}   `json:"mod_reason_by"`
+	RemovalReason        interface{}   `json:"removal_reason"`
+	ID                   string        `json:"id"`
+	ReportReasons        interface{}   `json:"report_reasons"`
+	Author               string        `json:"author"`
+	NumCrossposts        int           `json:"num_crossposts"`
 	NumComments          int           `json:"num_comments"`
 	SendReplies          bool          `json:"send_replies"`
 	ModReports           []interface{} `json:"mod_reports"`

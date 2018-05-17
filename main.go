@@ -185,7 +185,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 	options := ListingOptions{}
 	options.After = q.Get("last")
 
-	posts, err := c.GetPosts("all", SortTop, AgeMonth, options)
+	posts, err := c.GetPosts(q.Get("reddit"), ListingSort(q.Get("sort")), ListingAge(q.Get("time")), options)
 	if err != nil {
 		fmt.Println(err)
 	}
