@@ -8,12 +8,12 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/beefsack/go-rate"
-	"github.com/google/go-querystring/query"
 	"golang.org/x/oauth2"
 )
 
@@ -70,16 +70,16 @@ const (
 	SortControversial             = "controversial"
 )
 
-type ListingAge string
+type ListingTime string
 
 const (
-	AgeDefault ListingAge = ""
-	AgeHour               = "hour"
-	AgeDay                = "day"
-	AgeWeek               = "week"
-	AgeMonth              = "month"
-	AgeYear               = "year"
-	AgeAllTime            = "all"
+	TimeDefault ListingTime = ""
+	TimeHour                = "hour"
+	TimeDay                 = "day"
+	TimeWeek                = "week"
+	TimeMonth               = "month"
+	TimeYear                = "year"
+	TimeAllTime             = "all"
 )
 
 type ListingLocation string
@@ -276,25 +276,48 @@ func (r *Reddit) SetToken(tok *oauth2.Token) {
 	r.httpClient = r.oauthConfig.Client(r.ctx, tok)
 }
 
-// todo, Move the 2 params into options
-func (r Reddit) GetPosts(reddit string, sort ListingSort, age ListingAge, options ListingOptions) (posts *ListingResponse, err error) {
+func (r Reddit) GetPosts(options ListingOptions) (posts *ListingResponse, err error) {
 
-	q, err := query.Values(options)
+	err = options.Validate()
 	if err != nil {
-		return posts, err
+		fmt.Println(err.Error())
 	}
 
-	q.Set("sort", string(sort))
-	q.Set("t", string(age))
+	q := url.Values{}
 
-	var u string
-	if reddit == "" {
-		u = fmt.Sprintf(apiURL+"?%s", q.Encode())
-	} else {
-		u = fmt.Sprintf(apiURL+"r/%s?%s", reddit, q.Encode())
+	if options.After != "" {
+		q.Set("after", options.After)
+	}
+	if options.Before != "" {
+		q.Set("before", options.Before)
+	}
+	if options.Count > 0 {
+		q.Set("count", strconv.Itoa(options.Count))
+	}
+	if options.Limit > 0 {
+		q.Set("limit", strconv.Itoa(options.Limit))
+	}
+	if options.Show {
+		q.Set("show", "all")
+	}
+	if options.Detail {
+		q.Set("sr_detail", "")
+	}
+	if options.Time == SortTop || options.Time == SortControversial {
+		q.Set("t", string(options.Time))
 	}
 
-	fmt.Println(u)
+	var u = apiURL
+	if options.Reddit != "" {
+		u = u + "r/" + options.Reddit
+	}
+	if options.Sort != "" {
+		u = u + "/" + string(options.Sort)
+	}
+	encoded := q.Encode()
+	if encoded != "" {
+		u = u + "?" + encoded
+	}
 
 	posts = new(ListingResponse)
 	err = r.fetch(u, posts)
@@ -306,13 +329,21 @@ func (r Reddit) GetPosts(reddit string, sort ListingSort, age ListingAge, option
 }
 
 type ListingOptions struct {
-	After  string `url:"after,omitempty"`
-	Before string `url:"before,omitempty"`
-	Count  int    `url:"count,omitempty"`
-	Limit  int    `url:"limit,omitempty"`
-	Show   string `url:"show,omitempty"`
-	Detail string `url:"detail,omitempty"`
-	Time   string `url:"t,omitempty"`
+	After    string
+	Before   string
+	Count    int
+	Limit    int
+	Show     bool
+	Detail   bool
+	Location ListingLocation // Hot only
+	Time     ListingTime     // Top & Controversial only
+	Sort     ListingSort
+	Reddit   string
+}
+
+func (l ListingOptions) Validate() error {
+
+	return nil
 }
 
 type ListingResponse struct {

@@ -121,6 +121,10 @@
                         </div>
                     </div>
 
+                    <input type="hidden" name="sort" value="{{ get .Query "sort" }}">
+                    <input type="hidden" name="time" value="{{ get .Query "time" }}">
+                    <input type="hidden" name="location" value="{{ get .Query "location" }}">
+
                 </div>
             </form>
 

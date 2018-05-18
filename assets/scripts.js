@@ -15,7 +15,7 @@ $form.find('select').change(function () {
 
     $.each($form.serializeArray(), function (index, value) {
         if (value.value === '') {
-            $('select[name=' + value.name + ']').attr('disabled', 'disabled');
+            $form.find('[name=' + value.name + ']').attr('disabled', 'disabled');
         }
     });
 
@@ -38,7 +38,7 @@ function getMore() {
 
         $.ajax({
             method: "GET",
-            url: "/listing" + window.location.search,
+            url: "/ajax" + window.location.search,
             data: {
                 last: last_id,
                 reddit: reddit,
@@ -47,7 +47,7 @@ function getMore() {
 
                 if ("error" in data) {
 
-                    $results.html($('<li>' + data.error + '</li>'));
+                    $results.append($('<li>' + data.error + '</li>'));
                     stop = true;
                     $loadButton.remove();
 
@@ -93,7 +93,7 @@ function getMore() {
 
                 page++;
 
-                sleep_ms(1000);
+                // sleep_ms(1000);
 
                 stop_loading();
             }

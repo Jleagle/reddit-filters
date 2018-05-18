@@ -40,26 +40,114 @@
                     <a class="nav-link" href="/r/all">All</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Sort By</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Sort</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/?sort=top">Top (the most votes)</a>
-                        <a class="dropdown-item" href="/?sort=best">Best (highest upvote to downvote ratio)</a>
-                        <a class="dropdown-item" href="/?sort=hot">Hot (upvotes in time) ()already popular)</a>
-                        <a class="dropdown-item" href="/?sort=new">New (latest submitted)</a>
-                        <a class="dropdown-item" href="/?sort=rising">Rising (most comments/upvotes in time) (becoming popular)</a>
-                        <a class="dropdown-item" href="/?sort=controversial">Controversial (upvote to downvote ratio is as close to 1 as possible)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "sort" "top" }}">Top (the most votes)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "sort" "best" }}">Best (highest upvote to downvote ratio)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "sort" "hot" }}">Hot (upvotes in time) ()already popular)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "sort" "new" }}">New (latest submitted)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "sort" "rising" }}">Rising (most comments/upvotes in time) (becoming popular)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "sort" "controversial" }}">Controversial (upvote to downvote ratio is as close to 1 as possible)</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">In Time</a>
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Time</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/?time=default">Default</a>
-                        <a class="dropdown-item" href="/?time=hour">Hour</a>
-                        <a class="dropdown-item" href="/?time=day">Day</a>
-                        <a class="dropdown-item" href="/?time=week">Week</a>
-                        <a class="dropdown-item" href="/?time=month">Month</a>
-                        <a class="dropdown-item" href="/?time=year">Year</a>
-                        <a class="dropdown-item" href="/?time=all">AllTime</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "default" }}">Default</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "hour" }}">Hour</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "day" }}">Day</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "week" }}">Week</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "month" }}">Month</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "year" }}">Year</a>
+                        <a class="dropdown-item" href="?{{ override .Query "time" "all" }}">AllTime</a>
+                    </div>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Location</a>
+                    <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <a class="dropdown-item" href="/?location=GLOBAL">Global</a>
+                        <a class="dropdown-item" href="/?location=AR">Argentina</a>
+                        <a class="dropdown-item" href="/?location=AU">Australia</a>
+                        <a class="dropdown-item" href="/?location=BG">Bulgaria</a>
+                        <a class="dropdown-item" href="/?location=CA">Canada</a>
+                        <a class="dropdown-item" href="/?location=CL">Chile</a>
+                        <a class="dropdown-item" href="/?location=CO">Colombia</a>
+                        <a class="dropdown-item" href="/?location=CZ">Czechia</a>
+                        <a class="dropdown-item" href="/?location=FI">Finland</a>
+                        <a class="dropdown-item" href="/?location=GB">United Kingdom</a>
+                        <a class="dropdown-item" href="/?location=GR">Greece</a>
+                        <a class="dropdown-item" href="/?location=HR">Croatia</a>
+                        <a class="dropdown-item" href="/?location=HU">Hungary</a>
+                        <a class="dropdown-item" href="/?location=IE">Ireland</a>
+                        <a class="dropdown-item" href="/?location=IN">India</a>
+                        <a class="dropdown-item" href="/?location=IS">Iceland</a>
+                        <a class="dropdown-item" href="/?location=JP">Japan</a>
+                        <a class="dropdown-item" href="/?location=MX">Mexico</a>
+                        <a class="dropdown-item" href="/?location=MY">Malaysia</a>
+                        <a class="dropdown-item" href="/?location=NZ">New Zealand</a>
+                        <a class="dropdown-item" href="/?location=PH">Philippines</a>
+                        <a class="dropdown-item" href="/?location=PL">Poland</a>
+                        <a class="dropdown-item" href="/?location=PR">Puerto Rico</a>
+                        <a class="dropdown-item" href="/?location=PT">Portugal</a>
+                        <a class="dropdown-item" href="/?location=RO">Romania</a>
+                        <a class="dropdown-item" href="/?location=RS">Serbia</a>
+                        <a class="dropdown-item" href="/?location=SE">Sweden</a>
+                        <a class="dropdown-item" href="/?location=SG">Singapore</a>
+                        <a class="dropdown-item" href="/?location=TH">Thailand</a>
+                        <a class="dropdown-item" href="/?location=TR">Turkey</a>
+                        <a class="dropdown-item" href="/?location=TW">Taiwan</a>
+                        <a class="dropdown-item" href="/?location=US">United States</a>
+                        <a class="dropdown-item" href="/?location=US_WA">US_WA</a>
+                        <a class="dropdown-item" href="/?location=US_DE">US_DE</a>
+                        <a class="dropdown-item" href="/?location=US_DC">US_DC</a>
+                        <a class="dropdown-item" href="/?location=US_WI">US_WI</a>
+                        <a class="dropdown-item" href="/?location=US_WV">US_WV</a>
+                        <a class="dropdown-item" href="/?location=US_HI">US_HI</a>
+                        <a class="dropdown-item" href="/?location=US_FL">US_FL</a>
+                        <a class="dropdown-item" href="/?location=US_WY">US_WY</a>
+                        <a class="dropdown-item" href="/?location=US_NH">US_NH</a>
+                        <a class="dropdown-item" href="/?location=US_NJ">US_NJ</a>
+                        <a class="dropdown-item" href="/?location=US_NM">US_NM</a>
+                        <a class="dropdown-item" href="/?location=US_TX">US_TX</a>
+                        <a class="dropdown-item" href="/?location=US_LA">US_LA</a>
+                        <a class="dropdown-item" href="/?location=US_NC">US_NC</a>
+                        <a class="dropdown-item" href="/?location=US_ND">US_ND</a>
+                        <a class="dropdown-item" href="/?location=US_NE">US_NE</a>
+                        <a class="dropdown-item" href="/?location=US_TN">US_TN</a>
+                        <a class="dropdown-item" href="/?location=US_NY">US_NY</a>
+                        <a class="dropdown-item" href="/?location=US_PA">US_PA</a>
+                        <a class="dropdown-item" href="/?location=US_CA">US_CA</a>
+                        <a class="dropdown-item" href="/?location=US_NV">US_NV</a>
+                        <a class="dropdown-item" href="/?location=US_VA">US_VA</a>
+                        <a class="dropdown-item" href="/?location=US_CO">US_CO</a>
+                        <a class="dropdown-item" href="/?location=US_AK">US_AK</a>
+                        <a class="dropdown-item" href="/?location=US_AL">US_AL</a>
+                        <a class="dropdown-item" href="/?location=US_AR">US_AR</a>
+                        <a class="dropdown-item" href="/?location=US_VT">US_VT</a>
+                        <a class="dropdown-item" href="/?location=US_IL">US_IL</a>
+                        <a class="dropdown-item" href="/?location=US_GA">US_GA</a>
+                        <a class="dropdown-item" href="/?location=US_IN">US_IN</a>
+                        <a class="dropdown-item" href="/?location=US_IA">US_IA</a>
+                        <a class="dropdown-item" href="/?location=US_OK">US_OK</a>
+                        <a class="dropdown-item" href="/?location=US_AZ">US_AZ</a>
+                        <a class="dropdown-item" href="/?location=US_ID">US_ID</a>
+                        <a class="dropdown-item" href="/?location=US_CT">US_CT</a>
+                        <a class="dropdown-item" href="/?location=US_ME">US_ME</a>
+                        <a class="dropdown-item" href="/?location=US_MD">US_MD</a>
+                        <a class="dropdown-item" href="/?location=US_MA">US_MA</a>
+                        <a class="dropdown-item" href="/?location=US_OH">US_OH</a>
+                        <a class="dropdown-item" href="/?location=US_UT">US_UT</a>
+                        <a class="dropdown-item" href="/?location=US_MO">US_MO</a>
+                        <a class="dropdown-item" href="/?location=US_MN">US_MN</a>
+                        <a class="dropdown-item" href="/?location=US_MI">US_MI</a>
+                        <a class="dropdown-item" href="/?location=US_RI">US_RI</a>
+                        <a class="dropdown-item" href="/?location=US_KS">US_KS</a>
+                        <a class="dropdown-item" href="/?location=US_MT">US_MT</a>
+                        <a class="dropdown-item" href="/?location=US_MS">US_MS</a>
+                        <a class="dropdown-item" href="/?location=US_SC">US_SC</a>
+                        <a class="dropdown-item" href="/?location=US_KY">US_KY</a>
+                        <a class="dropdown-item" href="/?location=US_OR">US_OR</a>
+                        <a class="dropdown-item" href="/?location=US_SD">US_SD</a>
                     </div>
                 </li>
             </ul>

@@ -28,9 +28,9 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Get("/", HomeHandler)
-	r.Get("/r/{id}", HomeHandler)
-	r.Get("/listing", ListingHandler)
+	r.Get("/", ListingHandler)
+	r.Get("/r/{id}", ListingHandler)
+	r.Get("/ajax", AjaxHandler)
 
 	r.Get("/info", InfoHandler)
 
@@ -122,20 +122,29 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
+func ListingHandler(w http.ResponseWriter, r *http.Request) {
+
+	q := r.URL.Query()
 
 	t := listingTemplate{}
 	t.Fill(r)
-	t.Query = r.URL.Query()
+	t.Query = q
 	t.Reddit = chi.URLParam(r, "id")
 
-	returnTemplate(w, r, "listing", t)
+	//t.Sort = q.Get("sort")
+	//t.Time = q.Get("time")
+	//t.Location = q.Get("location")
+
+	returnTemplate(w, "listing", t)
 }
 
 type listingTemplate struct {
 	globalTemplate
-	Query  url.Values
-	Reddit string
+	Query    url.Values
+	Reddit   string
+	Sort     string
+	Time     string
+	Location string
 }
 
 func InfoHandler(w http.ResponseWriter, r *http.Request) {
@@ -143,14 +152,14 @@ func InfoHandler(w http.ResponseWriter, r *http.Request) {
 	t := infoTemplate{}
 	t.Fill(r)
 
-	returnTemplate(w, r, "info", t)
+	returnTemplate(w, "info", t)
 }
 
 type infoTemplate struct {
 	globalTemplate
 }
 
-func ListingHandler(w http.ResponseWriter, r *http.Request) {
+func AjaxHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
@@ -183,14 +192,17 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 	c.SetToken(tok)
 
 	options := ListingOptions{}
+	options.Reddit = q.Get("reddit")
 	options.After = q.Get("last")
+	options.Time = ListingTime(q.Get("time"))
+	options.Sort = ListingSort(q.Get("sort"))
 
-	posts, err := c.GetPosts(q.Get("reddit"), ListingSort(q.Get("sort")), ListingAge(q.Get("time")), options)
+	posts, err := c.GetPosts(options)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	var ret []listingItemTemplate
+	var ret []ajaxItemTemplate
 	var lastID string
 
 	for _, v := range posts.Data.Children {
@@ -261,7 +273,7 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		ret = append(ret, listingItemTemplate{
+		ret = append(ret, ajaxItemTemplate{
 			ID:            v.Kind + "_" + v.Data.ID,
 			Title:         v.Data.Title,
 			Icon:          v.Data.Thumbnail,
@@ -301,11 +313,11 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 type ajaxTemplate struct {
-	Items  []listingItemTemplate `json:"items"`
-	LastID string                `json:"last_id"`
+	Items  []ajaxItemTemplate `json:"items"`
+	LastID string             `json:"last_id"`
 }
 
-type listingItemTemplate struct {
+type ajaxItemTemplate struct {
 	ID            string `json:"id"`
 	Title         string `json:"title"`
 	Icon          string `json:"icon"`
@@ -315,7 +327,7 @@ type listingItemTemplate struct {
 	CommentsCount int    `json:"comments_count"`
 }
 
-func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageData interface{}) (err error) {
+func returnTemplate(w http.ResponseWriter, page string, pageData interface{}) (err error) {
 
 	w.Header().Set("Content-Type", "text/html")
 
@@ -342,10 +354,15 @@ func returnTemplate(w http.ResponseWriter, r *http.Request, page string, pageDat
 
 func templateFuncs() template.FuncMap {
 	return template.FuncMap{
+		"get":    func(q url.Values, field string) string { return q.Get(field) },
 		"has":    func(q url.Values, field string) bool { return q.Get(field) != "" },
 		"ist":    func(q url.Values, field string) bool { return q.Get(field) == "t" },
 		"isf":    func(q url.Values, field string) bool { return q.Get(field) == "f" },
 		"option": func(q url.Values, field string, value string) bool { return q.Get(field) == value },
+		"override": func(q url.Values, field string, value string) template.URL {
+			q.Set(field, value)
+			return template.URL(q.Encode())
+		},
 	}
 }
 
