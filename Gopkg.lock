@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/Jleagle/reddit-go"
+  packages = ["reddit"]
+  revision = "9924215fed1d46f6b122a247f4321b1ea7ae5cf0"
+
+[[projects]]
+  branch = "master"
   name = "github.com/beefsack/go-rate"
   packages = ["."]
   revision = "efa7637bb9b6433f47eb73dde68902abda87f352"
@@ -72,6 +78,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "cfb38779217c00bf101d5efe27994b2f206861497551a58f83fba025d888062c"
+  inputs-digest = "92d687f668a63995ed473785ffcd7fbf02cdd61540a6445ce7d306a423051cb6"
   solver-name = "gps-cdcl"
   solver-version = 1

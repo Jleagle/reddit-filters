@@ -11,11 +11,12 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Jleagle/reddit-go/reddit"
 	"github.com/go-chi/chi"
 	"golang.org/x/oauth2"
 )
 
-var client = GetClient(
+var client = reddit.GetClient(
 	os.Getenv("REDDIT_CLIENT"),
 	os.Getenv("REDDIT_SECRET"),
 	"http://localhost:8087/login/callback",
@@ -65,7 +66,7 @@ func (g *globalTemplate) Fill(r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	u, state := client.Login([]AuthScope{ScopeRead, ScopeSave}, false, "")
+	u, state := client.Login([]reddit.AuthScope{reddit.ScopeRead, reddit.ScopeSave}, false, "")
 
 	err := setSessionData(w, r, sessionState, state)
 	if err != nil {
@@ -173,11 +174,11 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 
-	options := ListingOptions{}
+	options := reddit.ListingOptions{}
 	options.Reddit = q.Get("reddit")
 	options.After = q.Get("last")
-	options.Time = ListingTime(q.Get("time"))
-	options.Sort = ListingSort(q.Get("sort"))
+	options.Time = reddit.ListingTime(q.Get("time"))
+	options.Sort = reddit.ListingSort(q.Get("sort"))
 
 	posts, err := c.GetListing(options)
 	if err != nil {
@@ -313,8 +314,6 @@ type listingItemTemplate struct {
 
 func SaveHandler(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("Content-Type", "application/json")
-
 	c, retu, err := getClientForAjax(w, r)
 	if err != nil {
 		fmt.Println(err)
@@ -323,7 +322,7 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = c.Save(r.URL.Query().Get("id"), "")
+	err = c.Save(r.URL.Query().Get("id"), "")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -333,8 +332,6 @@ func SaveHandler(w http.ResponseWriter, r *http.Request) {
 
 func UnsaveHandler(w http.ResponseWriter, r *http.Request) {
 
-	//w.Header().Set("Content-Type", "application/json")
-
 	c, retu, err := getClientForAjax(w, r)
 	if err != nil {
 		fmt.Println(err)
@@ -343,7 +340,7 @@ func UnsaveHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, err = c.Unsave(r.URL.Query().Get("id"))
+	err = c.Unsave(r.URL.Query().Get("id"))
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -351,7 +348,7 @@ func UnsaveHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("OK"))
 }
 
-func getClientForAjax(w http.ResponseWriter, r *http.Request) (c Reddit, ret bool, err error) {
+func getClientForAjax(w http.ResponseWriter, r *http.Request) (c reddit.Reddit, ret bool, err error) {
 
 	c = client
 
