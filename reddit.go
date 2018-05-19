@@ -476,33 +476,31 @@ func (d ListingPostData) IsImage() bool {
 	return strings.HasSuffix(d.URL, ".jpg") || strings.HasSuffix(d.URL, ".jpeg") || strings.HasSuffix(d.URL, ".png") || strings.HasSuffix(d.URL, ".gif")
 }
 
-func (r Reddit) Save(id string, category string) (resp *ListingResponse, err error) {
+func (r Reddit) Save(id string, category string) (err error) {
 
 	q := url.Values{}
 	q.Set("id", id)
 	q.Set("category", category)
 
-	resp = new(ListingResponse)
-	err = r.fetchPost("api/save", q, resp)
+	err = r.fetchPost("api/save", q, nil)
 	if err != nil {
-		return resp, err
+		return err
 	}
 
-	return resp, err
+	return nil
 }
 
-func (r Reddit) Unsave(id string) (resp *ListingResponse, err error) {
+func (r Reddit) Unsave(id string) (err error) {
 
 	q := url.Values{}
 	q.Set("id", id)
 
-	resp = new(ListingResponse)
-	err = r.fetchPost("api/unsave", q, resp)
+	err = r.fetchPost("api/unsave", q, nil)
 	if err != nil {
-		return resp, err
+		return err
 	}
 
-	return resp, err
+	return err
 }
 
 func (r Reddit) fetchGet(u string, data url.Values, i interface{}) (err error) {
