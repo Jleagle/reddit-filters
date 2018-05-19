@@ -22,6 +22,39 @@ $form.find('select').change(function () {
     $form.submit();
 });
 
+// Save buttons
+$('#results').on('click', 'p[data-saved] i', function () {
+
+    var $star = $(this);
+    var id = $star.closest('li').attr('data-id');
+
+    var $parent = $star.parent();
+    var saved = !!+$parent.attr('data-saved');
+
+    console.log(saved);
+
+    $(this).attr('class', 'fas fa-spinner fa-spin');
+
+    $.ajax({
+        method: "GET",
+        url: "/ajax/" + (saved ? "unsave" : "save"),
+        data: {
+            id: id,
+        },
+        success: function (data, status, xhr) {
+            if (data === 'OK') {
+                if (saved) {
+                    $parent.attr('data-saved', '0');
+                    $star.attr('class', 'far fa-star');
+                } else {
+                    $parent.attr('data-saved', '1');
+                    $star.attr('class', 'fas fa-star');
+                }
+            }
+        }
+    });
+});
+
 $(window).scroll(function () {
     if ($(window).scrollTop() + $(window).height() > $(document).height() - 5000) {
         getMore();
@@ -38,7 +71,7 @@ function getMore() {
 
         $.ajax({
             method: "GET",
-            url: "/ajax" + window.location.search,
+            url: "/ajax/listing" + window.location.search,
             data: {
                 last: last_id,
                 reddit: reddit,
@@ -48,8 +81,11 @@ function getMore() {
                 if ("error" in data) {
 
                     $results.append($('<li>' + data.error + '</li>'));
+
                     stop = true;
                     $loadButton.remove();
+
+                    stop_loading();
 
                 } else if (data.items !== null) {
 
@@ -59,7 +95,11 @@ function getMore() {
                         '<>': 'li', 'class': 'media mb-1', 'data-id': '${id}', 'html': [
                             {
                                 '<>': 'a', 'target': '_blank', 'href': '${link}', 'html': [
-                                    {'<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'alt': '${title}', 'width': '140px;'},
+                                    {
+                                        '<>': 'img', 'class': 'mr-3', 'src': '${icon}', 'width': '140px;', 'onerror': function (e) {
+                                            $(this).attr('src', '/assets/logo.png');
+                                        }
+                                    },
                                 ]
                             },
                             {
@@ -74,6 +114,13 @@ function getMore() {
                                         '<>': 'p', 'class': 'mb-0', 'html': [
                                             {'<>': 'a', 'target': '_blank', 'href': '${comments_link}', 'html': '${comments_count} Comments'}
                                         ]
+                                    },
+                                    {
+                                        '<>': 'p', 'html': function () {
+                                            return this.saved ? '<i class="fas fa-star"></i>' : '<i class="far fa-star"></i>'
+                                        }, 'data-saved': function () {
+                                            return this.saved ? '1' : '0'
+                                        }
                                     }
                                 ]
                             },
@@ -83,19 +130,23 @@ function getMore() {
                     $results.json2html(data.items, transform);
                     $results.append($('<div class="card page-number mb-1">Page ' + page + '</div>'));
 
+                    page++;
+
+                    stop_loading();
+
                 } else {
 
-                    // No error and no items
                     last_id = data.last_id;
+
                     $results.append($('<div class="card page-number mb-1">Page ' + page + '</div>'));
 
+                    page++;
+
+                    stop_loading();
+
+                    getMore();
+
                 }
-
-                page++;
-
-                // sleep_ms(1000);
-
-                stop_loading();
             }
         });
     }

@@ -11,8 +11,7 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
     <link rel="stylesheet" href="/assets/styles.css">
 
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/solid.css" integrity="sha384-Rw5qeepMFvJVEZdSo1nDQD5B6wX0m7c5Z/pLNvjkB14W6Yki1hKbSEQaX9ffUbWe" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/fontawesome.css" integrity="sha384-GVa9GOgVQgOk+TNYXu7S/InPTfSDTtBalSgkgqQ7sCik56N9ztlkoTr2f/T44oKV" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
 
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js" integrity="sha384-uefMccjFJAIv6A+rW+L4AHf99KvxDjWSu1z9VI8SKNVmz4sk7buKt/6v9KI65qnm" crossorigin="anonymous"></script>
@@ -31,13 +30,13 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
             <ul class="navbar-nav mr-auto">
                 <li class="nav-item">
-                    <a class="nav-link" href="/">Home</a>
+                    <a class="nav-link {{ if eq .Reddit "" }}active{{end}}" href="/">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/r/popular">Popular</a>
+                    <a class="nav-link {{ if eq .Reddit "popular" }}active{{end}}" href="/r/popular">Popular</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/r/all">All</a>
+                    <a class="nav-link {{ if eq .Reddit "all" }}active{{end}}" href="/r/all">All</a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Sort</a>
@@ -53,101 +52,101 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Time</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="?{{ override .Query "time" "default" }}">Default</a>
-                        <a class="dropdown-item" href="?{{ override .Query "time" "hour" }}">Hour</a>
-                        <a class="dropdown-item" href="?{{ override .Query "time" "day" }}">Day</a>
-                        <a class="dropdown-item" href="?{{ override .Query "time" "week" }}">Week</a>
-                        <a class="dropdown-item" href="?{{ override .Query "time" "month" }}">Month</a>
-                        <a class="dropdown-item" href="?{{ override .Query "time" "year" }}">Year</a>
-                        <a class="dropdown-item" href="?{{ override .Query "time" "all" }}">AllTime</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "default" }}">Default</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "hour" }}">Hour</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "day" }}">Day</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "week" }}">Week</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "month" }}">Month</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "year" }}">Year</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "time" "all" }}">AllTime</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown">Location</a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/?location=GLOBAL">Global</a>
-                        <a class="dropdown-item" href="/?location=AR">Argentina</a>
-                        <a class="dropdown-item" href="/?location=AU">Australia</a>
-                        <a class="dropdown-item" href="/?location=BG">Bulgaria</a>
-                        <a class="dropdown-item" href="/?location=CA">Canada</a>
-                        <a class="dropdown-item" href="/?location=CL">Chile</a>
-                        <a class="dropdown-item" href="/?location=CO">Colombia</a>
-                        <a class="dropdown-item" href="/?location=CZ">Czechia</a>
-                        <a class="dropdown-item" href="/?location=FI">Finland</a>
-                        <a class="dropdown-item" href="/?location=GB">United Kingdom</a>
-                        <a class="dropdown-item" href="/?location=GR">Greece</a>
-                        <a class="dropdown-item" href="/?location=HR">Croatia</a>
-                        <a class="dropdown-item" href="/?location=HU">Hungary</a>
-                        <a class="dropdown-item" href="/?location=IE">Ireland</a>
-                        <a class="dropdown-item" href="/?location=IN">India</a>
-                        <a class="dropdown-item" href="/?location=IS">Iceland</a>
-                        <a class="dropdown-item" href="/?location=JP">Japan</a>
-                        <a class="dropdown-item" href="/?location=MX">Mexico</a>
-                        <a class="dropdown-item" href="/?location=MY">Malaysia</a>
-                        <a class="dropdown-item" href="/?location=NZ">New Zealand</a>
-                        <a class="dropdown-item" href="/?location=PH">Philippines</a>
-                        <a class="dropdown-item" href="/?location=PL">Poland</a>
-                        <a class="dropdown-item" href="/?location=PR">Puerto Rico</a>
-                        <a class="dropdown-item" href="/?location=PT">Portugal</a>
-                        <a class="dropdown-item" href="/?location=RO">Romania</a>
-                        <a class="dropdown-item" href="/?location=RS">Serbia</a>
-                        <a class="dropdown-item" href="/?location=SE">Sweden</a>
-                        <a class="dropdown-item" href="/?location=SG">Singapore</a>
-                        <a class="dropdown-item" href="/?location=TH">Thailand</a>
-                        <a class="dropdown-item" href="/?location=TR">Turkey</a>
-                        <a class="dropdown-item" href="/?location=TW">Taiwan</a>
-                        <a class="dropdown-item" href="/?location=US">United States</a>
-                        <a class="dropdown-item" href="/?location=US_WA">US_WA</a>
-                        <a class="dropdown-item" href="/?location=US_DE">US_DE</a>
-                        <a class="dropdown-item" href="/?location=US_DC">US_DC</a>
-                        <a class="dropdown-item" href="/?location=US_WI">US_WI</a>
-                        <a class="dropdown-item" href="/?location=US_WV">US_WV</a>
-                        <a class="dropdown-item" href="/?location=US_HI">US_HI</a>
-                        <a class="dropdown-item" href="/?location=US_FL">US_FL</a>
-                        <a class="dropdown-item" href="/?location=US_WY">US_WY</a>
-                        <a class="dropdown-item" href="/?location=US_NH">US_NH</a>
-                        <a class="dropdown-item" href="/?location=US_NJ">US_NJ</a>
-                        <a class="dropdown-item" href="/?location=US_NM">US_NM</a>
-                        <a class="dropdown-item" href="/?location=US_TX">US_TX</a>
-                        <a class="dropdown-item" href="/?location=US_LA">US_LA</a>
-                        <a class="dropdown-item" href="/?location=US_NC">US_NC</a>
-                        <a class="dropdown-item" href="/?location=US_ND">US_ND</a>
-                        <a class="dropdown-item" href="/?location=US_NE">US_NE</a>
-                        <a class="dropdown-item" href="/?location=US_TN">US_TN</a>
-                        <a class="dropdown-item" href="/?location=US_NY">US_NY</a>
-                        <a class="dropdown-item" href="/?location=US_PA">US_PA</a>
-                        <a class="dropdown-item" href="/?location=US_CA">US_CA</a>
-                        <a class="dropdown-item" href="/?location=US_NV">US_NV</a>
-                        <a class="dropdown-item" href="/?location=US_VA">US_VA</a>
-                        <a class="dropdown-item" href="/?location=US_CO">US_CO</a>
-                        <a class="dropdown-item" href="/?location=US_AK">US_AK</a>
-                        <a class="dropdown-item" href="/?location=US_AL">US_AL</a>
-                        <a class="dropdown-item" href="/?location=US_AR">US_AR</a>
-                        <a class="dropdown-item" href="/?location=US_VT">US_VT</a>
-                        <a class="dropdown-item" href="/?location=US_IL">US_IL</a>
-                        <a class="dropdown-item" href="/?location=US_GA">US_GA</a>
-                        <a class="dropdown-item" href="/?location=US_IN">US_IN</a>
-                        <a class="dropdown-item" href="/?location=US_IA">US_IA</a>
-                        <a class="dropdown-item" href="/?location=US_OK">US_OK</a>
-                        <a class="dropdown-item" href="/?location=US_AZ">US_AZ</a>
-                        <a class="dropdown-item" href="/?location=US_ID">US_ID</a>
-                        <a class="dropdown-item" href="/?location=US_CT">US_CT</a>
-                        <a class="dropdown-item" href="/?location=US_ME">US_ME</a>
-                        <a class="dropdown-item" href="/?location=US_MD">US_MD</a>
-                        <a class="dropdown-item" href="/?location=US_MA">US_MA</a>
-                        <a class="dropdown-item" href="/?location=US_OH">US_OH</a>
-                        <a class="dropdown-item" href="/?location=US_UT">US_UT</a>
-                        <a class="dropdown-item" href="/?location=US_MO">US_MO</a>
-                        <a class="dropdown-item" href="/?location=US_MN">US_MN</a>
-                        <a class="dropdown-item" href="/?location=US_MI">US_MI</a>
-                        <a class="dropdown-item" href="/?location=US_RI">US_RI</a>
-                        <a class="dropdown-item" href="/?location=US_KS">US_KS</a>
-                        <a class="dropdown-item" href="/?location=US_MT">US_MT</a>
-                        <a class="dropdown-item" href="/?location=US_MS">US_MS</a>
-                        <a class="dropdown-item" href="/?location=US_SC">US_SC</a>
-                        <a class="dropdown-item" href="/?location=US_KY">US_KY</a>
-                        <a class="dropdown-item" href="/?location=US_OR">US_OR</a>
-                        <a class="dropdown-item" href="/?location=US_SD">US_SD</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "GLOBAL" }}">Global</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "AR" }}">Argentina</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "AU" }}">Australia</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "BG" }}">Bulgaria</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "CA" }}">Canada</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "CL" }}">Chile</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "CO" }}">Colombia</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "CZ" }}">Czechia</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "FI" }}">Finland</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "GB" }}">United Kingdom</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "GR" }}">Greece</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "HR" }}">Croatia</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "HU" }}">Hungary</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "IE" }}">Ireland</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "IN" }}">India</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "IS" }}">Iceland</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "JP" }}">Japan</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "MX" }}">Mexico</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "MY" }}">Malaysia</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "NZ" }}">New Zealand</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "PH" }}">Philippines</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "PL" }}">Poland</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "PR" }}">Puerto Rico</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "PT" }}">Portugal</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "RO" }}">Romania</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "RS" }}">Serbia</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "SE" }}">Sweden</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "SG" }}">Singapore</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "TH" }}">Thailand</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "TR" }}">Turkey</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "TW" }}">Taiwan</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US" }}">United States</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_WA" }}">United States (WA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_DE" }}">United States (DE)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_DC" }}">United States (DC)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_WI" }}">United States (WI)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_WV" }}">United States (WV)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_HI" }}">United States (HI)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_FL" }}">United States (FL)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_WY" }}">United States (WY)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NH" }}">United States (NH)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NJ" }}">United States (NJ)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NM" }}">United States (NM)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_TX" }}">United States (TX)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_LA" }}">United States (LA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NC" }}">United States (NC)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_ND" }}">United States (ND)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NE" }}">United States (NE)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_TN" }}">United States (TN)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NY" }}">United States (NY)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_PA" }}">United States (PA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_CA" }}">United States (CA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_NV" }}">United States (NV)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_VA" }}">United States (VA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_CO" }}">United States (CO)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_AK" }}">United States (AK)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_AL" }}">United States (AL)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_AR" }}">United States (AR)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_VT" }}">United States (VT)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_IL" }}">United States (IL)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_GA" }}">United States (GA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_IN" }}">United States (IN)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_IA" }}">United States (IA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_OK" }}">United States (OK)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_AZ" }}">United States (AZ)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_ID" }}">United States (ID)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_CT" }}">United States (CT)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_ME" }}">United States (ME)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MD" }}">United States (MD)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MA" }}">United States (MA)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_OH" }}">United States (OH)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_UT" }}">United States (UT)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MO" }}">United States (MO)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MN" }}">United States (MN)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MI" }}">United States (MI)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_RI" }}">United States (RI)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_KS" }}">United States (KS)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MT" }}">United States (MT)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_MS" }}">United States (MS)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_SC" }}">United States (SC)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_KY" }}">United States (KY)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_OR" }}">United States (OR)</a>
+                        <a class="dropdown-item" href="/{{.Reddit}}?{{ override .Query "location" "US_SD" }}">United States (SD)</a>
                     </div>
                 </li>
             </ul>

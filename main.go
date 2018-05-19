@@ -15,8 +15,6 @@ import (
 	"golang.org/x/oauth2"
 )
 
-var scopes = []AuthScope{ScopeIdentity, ScopeRead, ScopeHistory, ScopeSubscribe}
-
 var client = GetClient(
 	os.Getenv("REDDIT_CLIENT"),
 	os.Getenv("REDDIT_SECRET"),
@@ -28,15 +26,17 @@ func main() {
 
 	r := chi.NewRouter()
 
-	r.Get("/", ListingHandler)
-	r.Get("/r/{id}", ListingHandler)
-	r.Get("/ajax", AjaxHandler)
-
+	r.Get("/", HomeHandler)
+	r.Get("/r/{id}", HomeHandler)
 	r.Get("/info", InfoHandler)
 
 	r.Get("/login", LoginHandler)
 	r.Get("/login/callback", LoginCallbackHandler)
 	r.Get("/logout", LogoutHandler)
+
+	r.Get("/ajax/listing", ListingHandler)
+	r.Get("/ajax/save", SaveHandler)
+	r.Get("/ajax/unsave", UnsaveHandler)
 
 	// File server
 	fileServer(r)
@@ -49,6 +49,8 @@ func main() {
 
 type globalTemplate struct {
 	IsLoggedIn bool
+	Reddit     string
+	Query      url.Values
 }
 
 func (g *globalTemplate) Fill(r *http.Request) {
@@ -63,7 +65,7 @@ func (g *globalTemplate) Fill(r *http.Request) {
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	u, state := client.Login(scopes, false, "")
+	u, state := client.Login([]AuthScope{ScopeRead, ScopeSave}, false, "")
 
 	err := setSessionData(w, r, sessionState, state)
 	if err != nil {
@@ -122,11 +124,11 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 	return
 }
 
-func ListingHandler(w http.ResponseWriter, r *http.Request) {
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 
-	t := listingTemplate{}
+	t := homeTemplate{}
 	t.Fill(r)
 	t.Query = q
 	t.Reddit = chi.URLParam(r, "id")
@@ -135,13 +137,11 @@ func ListingHandler(w http.ResponseWriter, r *http.Request) {
 	//t.Time = q.Get("time")
 	//t.Location = q.Get("location")
 
-	returnTemplate(w, "listing", t)
+	returnTemplate(w, "home", t)
 }
 
-type listingTemplate struct {
+type homeTemplate struct {
 	globalTemplate
-	Query    url.Values
-	Reddit   string
 	Sort     string
 	Time     string
 	Location string
@@ -159,37 +159,19 @@ type infoTemplate struct {
 	globalTemplate
 }
 
-func AjaxHandler(w http.ResponseWriter, r *http.Request) {
+func ListingHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 
-	q := r.URL.Query()
-	c := client
-
-	tokString, err := getSessionData(r, sessionToken)
+	c, retu, err := getClientForAjax(w, r)
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	if tokString == "" {
-
-		j, err := json.Marshal(struct{ Error string `json:"error"` }{"not logged in"})
-		if err != nil {
-			fmt.Println(err)
-		}
-
-		w.Write(j)
+	if retu {
 		return
 	}
 
-	tok := new(oauth2.Token)
-
-	err = json.Unmarshal([]byte(tokString), tok)
-	if err != nil {
-		fmt.Println(err)
-	}
-
-	c.SetToken(tok)
+	q := r.URL.Query()
 
 	options := ListingOptions{}
 	options.Reddit = q.Get("reddit")
@@ -197,12 +179,12 @@ func AjaxHandler(w http.ResponseWriter, r *http.Request) {
 	options.Time = ListingTime(q.Get("time"))
 	options.Sort = ListingSort(q.Get("sort"))
 
-	posts, err := c.GetPosts(options)
+	posts, err := c.GetListing(options)
 	if err != nil {
 		fmt.Println(err)
 	}
 
-	var ret []ajaxItemTemplate
+	var ret []listingItemTemplate
 	var lastID string
 
 	for _, v := range posts.Data.Children {
@@ -273,7 +255,7 @@ func AjaxHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		ret = append(ret, ajaxItemTemplate{
+		ret = append(ret, listingItemTemplate{
 			ID:            v.Kind + "_" + v.Data.ID,
 			Title:         v.Data.Title,
 			Icon:          v.Data.Thumbnail,
@@ -281,6 +263,7 @@ func AjaxHandler(w http.ResponseWriter, r *http.Request) {
 			Link:          v.Data.URL,
 			CommentsLink:  "https://www.reddit.com" + v.Data.Permalink,
 			CommentsCount: v.Data.NumComments,
+			Saved:         v.Data.IsSaved,
 		})
 	}
 
@@ -301,7 +284,7 @@ func AjaxHandler(w http.ResponseWriter, r *http.Request) {
 	//}
 
 	// Encode
-	b, err := json.Marshal(ajaxTemplate{
+	b, err := json.Marshal(listingTemplate{
 		LastID: lastID,
 		Items:  ret,
 	})
@@ -312,12 +295,12 @@ func AjaxHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-type ajaxTemplate struct {
-	Items  []ajaxItemTemplate `json:"items"`
-	LastID string             `json:"last_id"`
+type listingTemplate struct {
+	Items  []listingItemTemplate `json:"items"`
+	LastID string                `json:"last_id"`
 }
 
-type ajaxItemTemplate struct {
+type listingItemTemplate struct {
 	ID            string `json:"id"`
 	Title         string `json:"title"`
 	Icon          string `json:"icon"`
@@ -325,6 +308,83 @@ type ajaxItemTemplate struct {
 	Link          string `json:"link"`
 	CommentsLink  string `json:"comments_link"`
 	CommentsCount int    `json:"comments_count"`
+	Saved         bool   `json:"saved"`
+}
+
+func SaveHandler(w http.ResponseWriter, r *http.Request) {
+
+	//w.Header().Set("Content-Type", "application/json")
+
+	c, retu, err := getClientForAjax(w, r)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if retu {
+		return
+	}
+
+	_, err = c.Save(r.URL.Query().Get("id"), "")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte("OK"))
+}
+
+func UnsaveHandler(w http.ResponseWriter, r *http.Request) {
+
+	//w.Header().Set("Content-Type", "application/json")
+
+	c, retu, err := getClientForAjax(w, r)
+	if err != nil {
+		fmt.Println(err)
+	}
+	if retu {
+		return
+	}
+
+	_, err = c.Unsave(r.URL.Query().Get("id"))
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	w.Write([]byte("OK"))
+}
+
+func getClientForAjax(w http.ResponseWriter, r *http.Request) (c Reddit, ret bool, err error) {
+
+	c = client
+
+	tokString, err := getSessionData(r, sessionToken)
+	if err != nil {
+		return c, false, err
+	}
+
+	if tokString == "" {
+		w.Write(errorToJsonBytes("not logged in"))
+		return c, true, err
+	}
+
+	tok := new(oauth2.Token)
+
+	err = json.Unmarshal([]byte(tokString), tok)
+	if err != nil {
+		return c, false, err
+	}
+
+	c.SetToken(tok)
+
+	return c, false, err
+}
+
+func errorToJsonBytes(error string) ([]byte) {
+
+	j, err := json.Marshal(struct{ Error string `json:"error"` }{error})
+	if err != nil {
+		return []byte(err.Error())
+	}
+
+	return j
 }
 
 func returnTemplate(w http.ResponseWriter, page string, pageData interface{}) (err error) {
@@ -360,8 +420,12 @@ func templateFuncs() template.FuncMap {
 		"isf":    func(q url.Values, field string) bool { return q.Get(field) == "f" },
 		"option": func(q url.Values, field string, value string) bool { return q.Get(field) == value },
 		"override": func(q url.Values, field string, value string) template.URL {
-			q.Set(field, value)
-			return template.URL(q.Encode())
+			var c = url.Values{}
+			for k := range q {
+				c.Set(k, q.Get(k))
+			}
+			c.Set(field, value)
+			return template.URL(c.Encode())
 		},
 	}
 }

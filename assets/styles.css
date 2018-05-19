@@ -8,6 +8,10 @@ div.page-number {
     /*border-radius: 3px;*/
 }
 
+p[data-saved] i{
+    cursor: pointer;
+}
+
 .spinner {
     height: 40px;
     font-size: 10px;

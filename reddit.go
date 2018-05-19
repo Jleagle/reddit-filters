@@ -276,7 +276,7 @@ func (r *Reddit) SetToken(tok *oauth2.Token) {
 	r.httpClient = r.oauthConfig.Client(r.ctx, tok)
 }
 
-func (r Reddit) GetPosts(options ListingOptions) (posts *ListingResponse, err error) {
+func (r Reddit) GetListing(options ListingOptions) (posts *ListingResponse, err error) {
 
 	err = options.Validate()
 	if err != nil {
@@ -307,20 +307,16 @@ func (r Reddit) GetPosts(options ListingOptions) (posts *ListingResponse, err er
 		q.Set("t", string(options.Time))
 	}
 
-	var u = apiURL
+	var u string
 	if options.Reddit != "" {
 		u = u + "r/" + options.Reddit
 	}
 	if options.Sort != "" {
 		u = u + "/" + string(options.Sort)
 	}
-	encoded := q.Encode()
-	if encoded != "" {
-		u = u + "?" + encoded
-	}
 
 	posts = new(ListingResponse)
-	err = r.fetch(u, posts)
+	err = r.fetchGet(u, q, posts)
 	if err != nil {
 		return posts, err
 	}
@@ -480,7 +476,43 @@ func (d ListingPostData) IsImage() bool {
 	return strings.HasSuffix(d.URL, ".jpg") || strings.HasSuffix(d.URL, ".jpeg") || strings.HasSuffix(d.URL, ".png") || strings.HasSuffix(d.URL, ".gif")
 }
 
-func (r Reddit) fetch(url string, i interface{}) (err error) {
+func (r Reddit) Save(id string, category string) (resp *ListingResponse, err error) {
+
+	q := url.Values{}
+	q.Set("id", id)
+	q.Set("category", category)
+
+	resp = new(ListingResponse)
+	err = r.fetchPost("api/save", q, resp)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
+}
+
+func (r Reddit) Unsave(id string) (resp *ListingResponse, err error) {
+
+	q := url.Values{}
+	q.Set("id", id)
+
+	resp = new(ListingResponse)
+	err = r.fetchPost("api/unsave", q, resp)
+	if err != nil {
+		return resp, err
+	}
+
+	return resp, err
+}
+
+func (r Reddit) fetchGet(u string, data url.Values, i interface{}) (err error) {
+
+	u = apiURL + u
+
+	encoded := data.Encode()
+	if encoded != "" {
+		u = u + "?" + encoded
+	}
 
 	if r.httpClient == nil {
 		return errNoToken
@@ -490,7 +522,7 @@ func (r Reddit) fetch(url string, i interface{}) (err error) {
 		r.throttle.Wait()
 	}
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", u, nil)
 	if err != nil {
 		return err
 	}
@@ -505,6 +537,56 @@ func (r Reddit) fetch(url string, i interface{}) (err error) {
 	if err != nil {
 		return err
 	}
+
+	err = json.Unmarshal(bytes, i)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r Reddit) fetchPost(u string, data url.Values, i interface{}) (err error) {
+
+	u = apiURL + u
+
+	if r.httpClient == nil {
+		return errNoToken
+	}
+
+	if r.throttle != nil {
+		r.throttle.Wait()
+	}
+
+	req, err := http.NewRequest("POST", u, strings.NewReader(data.Encode()))
+	if err != nil {
+		return err
+	}
+
+	req.PostForm = data
+
+	err = r.fetch(req, i)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r Reddit) fetch(req *http.Request, i interface{}) (err error) {
+
+	resp, err := r.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	bytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(string(bytes))
 
 	err = json.Unmarshal(bytes, i)
 	if err != nil {
