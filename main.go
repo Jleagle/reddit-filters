@@ -19,8 +19,8 @@ import (
 var client = reddit.GetClient(
 	os.Getenv("REDDIT_CLIENT"),
 	os.Getenv("REDDIT_SECRET"),
-	"http://localhost:8087/login/callback",
-	"Reddit Filters",
+	os.Getenv("REDDIT_AUTH_CALLBACK"),
+	"reddit.jimeagle.com",
 )
 
 func main() {
