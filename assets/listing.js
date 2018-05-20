@@ -127,8 +127,8 @@ function getMore() {
                         ]
                     };
 
-                    $results.json2html(data.items, transform);
                     $results.append($('<div class="card page-number mb-1">Page ' + page + '</div>'));
+                    $results.json2html(data.items, transform);
 
                     page++;
 
