@@ -154,7 +154,6 @@ function getMore() {
 
 function start_loading() {
 
-    console.log('Loading...');
     loading = true;
     $loadButton.attr('disabled', 'disabled');
     $loadButton.find('i').show();
@@ -163,14 +162,8 @@ function start_loading() {
 
 function stop_loading() {
 
-    console.log('Complete.');
     loading = false;
     $loadButton.removeAttr('disabled');
     $loadButton.find('i').hide();
 
-}
-
-function sleep_ms(millisecs) {
-    var initiation = new Date().getTime();
-    while ((new Date().getTime() - initiation) < millisecs) ;
 }
