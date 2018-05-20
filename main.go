@@ -51,6 +51,7 @@ func main() {
 type globalTemplate struct {
 	IsLoggedIn bool
 	Reddit     string
+	RedditFull string
 	Query      url.Values
 }
 
@@ -62,6 +63,12 @@ func (g *globalTemplate) Fill(r *http.Request) {
 	}
 
 	g.IsLoggedIn = token != ""
+
+	if g.Reddit != "" {
+		g.RedditFull = "/r/" + g.Reddit
+	} else {
+		g.RedditFull = "/"
+	}
 }
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -130,13 +137,9 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	q := r.URL.Query()
 
 	t := homeTemplate{}
-	t.Fill(r)
 	t.Query = q
 	t.Reddit = chi.URLParam(r, "id")
-
-	//t.Sort = q.Get("sort")
-	//t.Time = q.Get("time")
-	//t.Location = q.Get("location")
+	t.Fill(r)
 
 	returnTemplate(w, "home", t)
 }

@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/Jleagle/reddit-go"
   packages = ["reddit"]
-  revision = "9924215fed1d46f6b122a247f4321b1ea7ae5cf0"
+  revision = "5fb23bd475499d43d944fae638a94d7342014201"
 
 [[projects]]
   branch = "master"
@@ -28,8 +28,8 @@
 [[projects]]
   name = "github.com/gorilla/context"
   packages = ["."]
-  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
-  version = "v1.1"
+  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  version = "v1.1.1"
 
 [[projects]]
   name = "github.com/gorilla/securecookie"
@@ -50,7 +50,7 @@
     "context",
     "context/ctxhttp"
   ]
-  revision = "2491c5de3490fced2f6cff376127c667efeed857"
+  revision = "57065200b4b034a1c8ad54ff77069408c2218ae6"
 
 [[projects]]
   branch = "master"
@@ -78,6 +78,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "92d687f668a63995ed473785ffcd7fbf02cdd61540a6445ce7d306a423051cb6"
+  inputs-digest = "5c96feeaf686d772576244fd45ee5c516f863b36b308714afef1f9f913ff064c"
   solver-name = "gps-cdcl"
   solver-version = 1

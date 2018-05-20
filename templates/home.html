@@ -5,7 +5,12 @@
 <div class="container">
 
     <div class="card mb-4">
-        <div class="card-header">Filters</div>
+        <div class="card-header">
+            Filters
+            <a href="{{ .RedditFull }}" class="float-right">
+                <i class="fas fa-times"></i>
+            </a>
+        </div>
         <div class="card-body">
 
             <form method="get" id="filters">
