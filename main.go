@@ -49,6 +49,10 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	q := r.URL.Query()
 
+	if q.Get("sort") == "" {
+		q.Set("sort", "hot")
+	}
+
 	t := homeTemplate{}
 	t.Query = q
 	t.Reddit = chi.URLParam(r, "id")
