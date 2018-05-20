@@ -17,4 +17,4 @@ curl https://api.rollbar.com/api/1/deploy/ \
   --silent > /dev/null
 
 echo "### Restarting"
-/etc/init.d/site.reddit.sh restart
+bash /etc/init.d/site.reddit.sh restart
