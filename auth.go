@@ -7,11 +7,14 @@ import (
 	"net/http"
 
 	"github.com/Jleagle/reddit-go/reddit"
+	"github.com/mssola/user_agent"
 )
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
 
-	u, state := client.Login([]reddit.AuthScope{reddit.ScopeRead, reddit.ScopeSave}, false, "")
+	ua := user_agent.New(r.UserAgent())
+
+	u, state := client.Login([]reddit.AuthScope{reddit.ScopeRead, reddit.ScopeSave}, ua.Mobile(), "")
 
 	err := setSessionData(w, r, sessionState, state)
 	if err != nil {
