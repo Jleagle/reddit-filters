@@ -10,16 +10,16 @@ import (
 const sessionToken = "token"
 const sessionState = "state"
 
-var store = sessions.NewCookieStore(
+var sessionStore = sessions.NewCookieStore(
 	[]byte(os.Getenv("REDDIT_SESSION_AUTHENTICATION")),
 	[]byte(os.Getenv("REDDIT_SESSION_ENCRYPTION")),
 )
 
 func getSession(r *http.Request) (*sessions.Session, error) {
 
-	session, err := store.Get(r, "reddit-filters-session")
+	session, err := sessionStore.Get(r, "reddit-filters-session")
 	session.Options = &sessions.Options{
-		MaxAge: 60 * 60,
+		MaxAge: 60 * 60 * 30,
 		Path:   "/",
 	}
 
