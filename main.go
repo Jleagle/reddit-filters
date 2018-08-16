@@ -39,7 +39,7 @@ func main() {
 	// File server
 	fileServer(r)
 
-	err := http.ListenAndServe(":8087", r)
+	err := http.ListenAndServe(":8080", r)
 	if err != nil {
 		fmt.Println(err)
 	}
