@@ -114,7 +114,11 @@ func returnTemplate(w http.ResponseWriter, page string, pageData interface{}) (e
 	w.Header().Set("Content-Type", "text/html")
 
 	// Load templates needed
-	t, err := template.New("t").Funcs(templateFuncs()).ParseFiles("templates/_header.html", "templates/_footer.html", "templates/"+page+".html")
+	t, err := template.New("t").Funcs(templateFuncs()).ParseFiles(
+		"templates/_header.html",
+		"templates/_footer.html",
+		"templates/"+page+".html",
+	)
 	if err != nil {
 		return err
 	}
