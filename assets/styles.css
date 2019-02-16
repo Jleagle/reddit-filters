@@ -3,6 +3,10 @@ html {
     overflow-y: scroll;
 }
 
+body{
+    background-color: #212529;
+}
+
 div.page-number {
     text-align: center;
     /*border-radius: 3px;*/
