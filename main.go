@@ -22,6 +22,21 @@ var client = reddit.GetClient(
 
 func main() {
 
+	envVars := []string{
+		"REDDIT_SESSION_AUTHENTICATION",
+		"REDDIT_SESSION_ENCRYPTION",
+		"REDDIT_CLIENT",
+		"REDDIT_SECRET",
+		"REDDIT_AUTH_CALLBACK",
+	}
+
+	for _, v := range envVars {
+		if os.Getenv(v) == "" {
+			fmt.Println(v + " missing")
+			os.Exit(1)
+		}
+	}
+
 	r := chi.NewRouter()
 
 	r.Get("/", HomeHandler)
