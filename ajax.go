@@ -208,7 +208,7 @@ func getClientForAjax(w http.ResponseWriter, r *http.Request) (c reddit.Reddit, 
 	}
 
 	if tokString == "" {
-		w.Write(errorToJsonBytes("not logged in"))
+		w.Write(errorToJsonBytes("<a class=\"nav-link\" href=\"/login\">Login</a>"))
 		return c, true, err
 	}
 
